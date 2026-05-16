@@ -1,0 +1,13 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+.vscode/
+.vs/ProjectEvaluation/lampsfracta.strings.v10.bin
+.vs/ProjectEvaluation/lampsfracta.projects.v10.bin
+.vs/ProjectEvaluation/lampsfracta.metadata.v10.bin
+.vs/LampsFracta/v18/DocumentLayout.json
+.vs/LampsFracta/v18/DocumentLayout.backup.json
+.vs/LampsFracta/v18/.suo
+.vs/LampsFracta/v18/.futdcache.v2
+.vs/LampsFracta/FileContentIndex/3fd16757-5551-456d-91cb-a383ac3811a9.vsidx
+.vs/LampsFracta/DesignTimeBuild/.dtbcache.v2
