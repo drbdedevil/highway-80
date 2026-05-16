@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" uid="uid://k2lb60dnpeci" path="res://Scenes/MainMenuScene.cs" id="1_sb72h"]
 [ext_resource type="Texture2D" uid="uid://stt46iga3tet" path="res://Textures/MainMenu.png" id="2_47sjk"]
-[ext_resource type="AudioStream" uid="uid://dnaog3n8c57mt" path="res://Audio/Music/Velocity Circuit Overdrive.mp3" id="3_mxhvt"]
+[ext_resource type="AudioStream" uid="uid://c6a4l8teee1nk" path="res://Audio/Music/15_MainMenu_Loop.wav" id="3_mxhvt"]
+[ext_resource type="AudioStream" uid="uid://dtgou3wa3c8li" path="res://Audio/SFX/12_Select.wav" id="4_gmxq7"]
 
 [node name="MainMenuScene" type="Control" unique_id=638681758]
 layout_mode = 3
@@ -71,4 +72,7 @@ value = 0.2
 stream = ExtResource("3_mxhvt")
 autoplay = true
 bus = &"Music"
-parameters/looping = true
+
+[node name="ClickSound" type="AudioStreamPlayer" parent="." unique_id=1097928391]
+stream = ExtResource("4_gmxq7")
+bus = &"SFX"
