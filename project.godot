@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Highway-80"
-run/main_scene="uid://bvgiheywflgwl"
+run/main_scene="uid://bf8ier12ll6o3"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://b3uaoba1a078y"
 
 [display]
 

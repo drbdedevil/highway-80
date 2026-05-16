@@ -39,12 +39,29 @@ custom_minimum_size = Vector2(200, 20)
 layout_mode = 2
 text = "Начать игру"
 
-[node name="SettingsButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1343416267]
-custom_minimum_size = Vector2(200, 20)
-layout_mode = 2
-text = "Настройки"
-
 [node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1774823045]
 custom_minimum_size = Vector2(200, 20)
 layout_mode = 2
 text = "Выход"
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1038046048]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41526243, 0.55114466, 0.9929045, 1)
+text = "SFX Volume"
+
+[node name="SFXSlider" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=867812575]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2093792735]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41526243, 0.55114466, 0.9929045, 1)
+text = "Music Volume"
+
+[node name="MusicSlider" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=642675508]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
