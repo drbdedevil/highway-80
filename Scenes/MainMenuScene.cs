@@ -57,25 +57,25 @@ public partial class MainMenuScene : Control
 
 		tween.TweenInterval(0.1f);
 
-		sfxSld.Position = new Vector2(screenWidth, startPosSfx.Y);
+		sfxSld.Position = new Vector2(-screenWidth, startPosSfx.Y);
 		tween.TweenProperty(sfxSld, "position:x", startPosSfx.X, 1f)
 			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Back);
 
 		tween.TweenInterval(0.1f);
 
-		label.Position = new Vector2(screenWidth, starPostlabel.Y);
+		label.Position = new Vector2(-screenWidth, starPostlabel.Y);
 		tween.TweenProperty(label, "position:x", starPostlabel.X, 1f)
 			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Back);
 
 		tween.TweenInterval(0.1f);
 
-		musicSld.Position = new Vector2(-screenWidth, startPosMusic.Y);
+		musicSld.Position = new Vector2(screenWidth, startPosMusic.Y);
 		tween.TweenProperty(musicSld, "position:x", startPosMusic.X, 1f)
 			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Back);
 			 
 		tween.TweenInterval(0.1f);
 
-		label2.Position = new Vector2(-screenWidth, starPostlabel2.Y);
+		label2.Position = new Vector2(screenWidth, starPostlabel2.Y);
 		tween.TweenProperty(label2, "position:x", starPostlabel2.X, 1f)
 			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Back);
 

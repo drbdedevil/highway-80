@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://bf8ier12ll6o3"]
 
 [ext_resource type="Script" uid="uid://k2lb60dnpeci" path="res://Scenes/MainMenuScene.cs" id="1_sb72h"]
-[ext_resource type="Texture2D" uid="uid://stt46iga3tet" path="res://Textures/MainMenu.png" id="2_47sjk"]
+[ext_resource type="Shader" uid="uid://d32666p8k14h2" path="res://Shaders/background.gdshader" id="3_c7qge"]
 [ext_resource type="AudioStream" uid="uid://c6a4l8teee1nk" path="res://Audio/Music/15_MainMenu_Loop.wav" id="3_mxhvt"]
 [ext_resource type="FontFile" uid="uid://nrxbnyh22sqc" path="res://Fonts/PixeloidSans-Bold.otf" id="3_x260n"]
 [ext_resource type="AudioStream" uid="uid://dtgou3wa3c8li" path="res://Audio/SFX/12_Select.wav" id="4_gmxq7"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6xh72"]
+shader = ExtResource("3_c7qge")
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c7qge"]
 
@@ -18,18 +21,21 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_sb72h")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=1836171620]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-texture = ExtResource("2_47sjk")
+[node name="Background" type="ColorRect" parent="." unique_id=810370577]
+material = SubResource("ShaderMaterial_6xh72")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1958174640]
 layout_mode = 1
-anchors_preset = 13
+anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
-anchor_bottom = 1.0
+anchor_bottom = 0.462
 offset_left = -100.0
 offset_right = 100.0
 grow_horizontal = 2
@@ -52,18 +58,6 @@ theme_override_fonts/font = ExtResource("3_x260n")
 theme_override_font_sizes/font_size = 24
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_c7qge")
 text = "Начать игру"
-
-[node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1774823045]
-custom_minimum_size = Vector2(200, 20)
-layout_mode = 2
-theme_type_variation = &"FlatButton"
-theme_override_colors/font_color = Color(0.11764706, 0.8352941, 0.49411765, 1)
-theme_override_colors/font_pressed_color = Color(0.08627451, 0.5803922, 0.34117648, 1)
-theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
-theme_override_fonts/font = ExtResource("3_x260n")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_x260n")
-text = "Выход"
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1038046048]
 layout_mode = 2
@@ -90,6 +84,18 @@ layout_mode = 2
 max_value = 1.0
 step = 0.01
 value = 0.2
+
+[node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1774823045]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(0.11764706, 0.8352941, 0.49411765, 1)
+theme_override_colors/font_pressed_color = Color(0.08627451, 0.5803922, 0.34117648, 1)
+theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
+theme_override_fonts/font = ExtResource("3_x260n")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_x260n")
+text = "Выход"
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=1891720155]
 stream = ExtResource("3_mxhvt")
