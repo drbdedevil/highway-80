@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dqssciymvo4x6"]
+
+[ext_resource type="Script" uid="uid://byer1nut084ie" path="res://Scenes/Player/Player.cs" id="1_s0eop"]
+[ext_resource type="Texture2D" uid="uid://clhemtnvkyvxm" path="res://icon.svg" id="2_ft8w5"]
+
+[node name="Player" type="Node2D" unique_id=2032750685]
+script = ExtResource("1_s0eop")
+playerHeightOffset = 20.0
+playerSpeedModifier = 2.0
+
+[node name="Texture" type="TextureRect" parent="." unique_id=1535683970]
+offset_right = 128.0
+offset_bottom = 128.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("2_ft8w5")

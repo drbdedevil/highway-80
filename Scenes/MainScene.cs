@@ -19,23 +19,23 @@ public class RoadSegment
 
 public partial class MainScene : Node2D
 {
+	public Player player = null;
+
 	List<RoadSegment> segments = new();
 
 	public float cameraX = 0;
-	public float cameraY = 1000;
+	public float cameraY = 600;
 	public float cameraZ = 0;
-	public float distToPlayer = 100;
+	public float distToPlayer = 500;
 	public float distToPlane = 0;
-
-	public float speed = 1000f;
 
 	public float segmentLength = 200f;
 	public int totalSegments = 0;
 	public int visibleSegments = 200;
 	public float roadWidth = 1000;
 	public float roadLength = 0;
-	public int roadLanes = 3;
-	public float perspective = 300f;
+	public int roadLanes = 5;
+	public float perspective = 500f;
 
 	public override void _Ready()
 	{
@@ -46,13 +46,24 @@ public partial class MainScene : Node2D
 		createRoad();
 		totalSegments = segments.Count;
 		roadLength = totalSegments * segmentLength;
+
+		// player
+		player = GetNode("Player") as Player;
+		player.init(this);
+		player.restart();
 	}
 
 	public override void _Process(double delta)
 	{
+		// player
+		player.updatePosition(Math.Min(1, delta / 10));
+
 		// camera
 		// cameraZ += speed * (float)delta;
-		cameraZ = -distToPlayer;
+		cameraX = player.worldPosition.X * roadWidth;
+		cameraZ = player.worldPosition.Z - distToPlayer;
+		if (cameraZ < 0)
+			cameraZ += roadLength;
 
 		QueueRedraw();
 	}
@@ -81,6 +92,9 @@ public partial class MainScene : Node2D
 	{
 		DrawRect(GetViewportRect(), Colors.Black);
 
+		Vector2 screen = GetViewport().GetVisibleRect().Size;
+		var clipBottomLine = screen.Y;
+
 		var baseSegment = getSegment(cameraZ);
 		var baseIndex = baseSegment.Index;
 
@@ -89,9 +103,13 @@ public partial class MainScene : Node2D
 			var currIndex = (baseIndex + i) % totalSegments;
 			var currSegment = segments[currIndex];
 
-			project3D(currSegment.Point);
+			var offsetZ = (currIndex < baseIndex) ? roadLength : 0;
 
-			if (i > 0)
+			project3D(currSegment.Point, offsetZ);
+
+			var currBottomLine = currSegment.Point.Screen.Y;
+
+			if (i > 0 && currBottomLine <= clipBottomLine)
 			{
 				var prevIndex = (currIndex > 0) ? currIndex - 1 : totalSegments - 1;
 				var prevSegment = segments[prevIndex];
@@ -102,10 +120,12 @@ public partial class MainScene : Node2D
 				drawSegment(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, currSegment.Color);
 				drawEdges(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Godot.Colors.DarkGoldenrod);
 
-				if (currIndex % 2 == 0)
+				if (currIndex % 3 == 0)
 				{
 					drawDashedLineMarking(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Godot.Colors.White);
 				}
+
+				clipBottomLine = currBottomLine;
 			}
 		}
 	}
@@ -118,13 +138,13 @@ public partial class MainScene : Node2D
 		Point.Screen.Y = screen.Y - Point.World.Z;
 		Point.Screen.Z = roadWidth;
 	}
-	public void project3D(SegmentPoint Point)
+	public void project3D(SegmentPoint Point, float offsetZ)
 	{
 		Vector2 screen = GetViewport().GetVisibleRect().Size;
 
 		var transX = Point.World.X - cameraX;
 		var transY = Point.World.Y - cameraY;
-		var transZ = Point.World.Z - cameraZ;
+		var transZ = Point.World.Z - cameraZ - offsetZ;
 
 		Point.Scale = distToPlane / transZ;
 
@@ -139,6 +159,8 @@ public partial class MainScene : Node2D
 
 	private void drawSegment(float x1, float y1, float w1, float x2, float y2, float w2, Godot.Color Color)
 	{
+		if (w1 <= 0 || w2 <= 0) return;
+
 		DrawColoredPolygon(new Vector2[] {
 			new Vector2(x1 - w1, y1),
 			new Vector2(x1 + w1, y1),
@@ -153,8 +175,11 @@ public partial class MainScene : Node2D
 	}
 	private void drawDashedLineMarking(float x1, float y1, float w1, float x2, float y2, float w2, Godot.Color Color)
 	{
-		var line_w1 = (w1 / 20) / 2;
-		var line_w2 = (w2 / 20) / 2;
+		if (w1 <= 0 || w2 <= 0) return;
+		if (w1 < 2f && w2 < 2f) return;
+
+		var line_w1 = (w1 / 40) / 2;
+		var line_w2 = (w2 / 40) / 2;
 
 		var lane_w1 = (w1 * 2) / roadLanes;
 		var lane_w2 = (w2 * 2) / roadLanes;
