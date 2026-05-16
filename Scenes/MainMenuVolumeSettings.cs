@@ -10,8 +10,8 @@ public partial class MainMenuVolumeSettings : Node
 
 	public override void _Ready()
 	{
-		_sfxSlider = GetNode<HSlider>("MarginContainer/VBoxContainer/SFXSlider");
-		_musicSlider = GetNode<HSlider>("MarginContainer/VBoxContainer/MusicSlider");
+		_sfxSlider = GetNode<HSlider>("../MarginContainer/VBoxContainer/SFXSlider");
+		_musicSlider = GetNode<HSlider>("../MarginContainer/VBoxContainer/MusicSlider");
 
 		_sfxBusIndex = AudioServer.GetBusIndex("SFX");
 		_musicBusIndex = AudioServer.GetBusIndex("Music");

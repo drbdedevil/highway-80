@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://bf8ier12ll6o3"]
 
+[ext_resource type="Script" uid="uid://yv3qxart1ac4" path="res://Scenes/MainMenuVolumeSettings.cs" id="1_mxhvt"]
 [ext_resource type="Script" uid="uid://k2lb60dnpeci" path="res://Scenes/MainMenuScene.cs" id="1_sb72h"]
 [ext_resource type="Texture2D" uid="uid://stt46iga3tet" path="res://Textures/MainMenu.png" id="2_47sjk"]
+[ext_resource type="AudioStream" uid="uid://dnaog3n8c57mt" path="res://Audio/Music/Velocity Circuit Overdrive.mp3" id="3_mxhvt"]
 
 [node name="MainMenuScene" type="Control" unique_id=638681758]
 layout_mode = 3
@@ -53,7 +55,7 @@ text = "SFX Volume"
 layout_mode = 2
 max_value = 1.0
 step = 0.01
-value = 0.5
+value = 0.2
 
 [node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2093792735]
 layout_mode = 2
@@ -64,4 +66,13 @@ text = "Music Volume"
 layout_mode = 2
 max_value = 1.0
 step = 0.01
-value = 0.5
+value = 0.2
+
+[node name="VolumeLogic" type="Node" parent="." unique_id=1111979819]
+script = ExtResource("1_mxhvt")
+
+[node name="BackgroundMusic" type="AudioStreamPlayer" parent="VolumeLogic" unique_id=1891720155]
+stream = ExtResource("3_mxhvt")
+autoplay = true
+bus = &"Music"
+parameters/looping = true
