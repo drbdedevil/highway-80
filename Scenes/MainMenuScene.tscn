@@ -3,7 +3,12 @@
 [ext_resource type="Script" uid="uid://k2lb60dnpeci" path="res://Scenes/MainMenuScene.cs" id="1_sb72h"]
 [ext_resource type="Texture2D" uid="uid://stt46iga3tet" path="res://Textures/MainMenu.png" id="2_47sjk"]
 [ext_resource type="AudioStream" uid="uid://c6a4l8teee1nk" path="res://Audio/Music/15_MainMenu_Loop.wav" id="3_mxhvt"]
+[ext_resource type="FontFile" uid="uid://nrxbnyh22sqc" path="res://Fonts/PixeloidSans-Bold.otf" id="3_x260n"]
 [ext_resource type="AudioStream" uid="uid://dtgou3wa3c8li" path="res://Audio/SFX/12_Select.wav" id="4_gmxq7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c7qge"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x260n"]
 
 [node name="MainMenuScene" type="Control" unique_id=638681758]
 layout_mode = 3
@@ -39,16 +44,32 @@ alignment = 1
 [node name="StartButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=465367594]
 custom_minimum_size = Vector2(200, 20)
 layout_mode = 2
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(0.11651691, 0.83366877, 0.49607646, 1)
+theme_override_colors/font_pressed_color = Color(0.08627451, 0.5803922, 0.34117648, 1)
+theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
+theme_override_fonts/font = ExtResource("3_x260n")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_c7qge")
 text = "Начать игру"
 
 [node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1774823045]
 custom_minimum_size = Vector2(200, 20)
 layout_mode = 2
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(0.11764706, 0.8352941, 0.49411765, 1)
+theme_override_colors/font_pressed_color = Color(0.08627451, 0.5803922, 0.34117648, 1)
+theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
+theme_override_fonts/font = ExtResource("3_x260n")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_x260n")
 text = "Выход"
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1038046048]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.41526243, 0.55114466, 0.9929045, 1)
+theme_override_colors/font_color = Color(0.66048145, 0.9989683, 0.77920973, 1)
+theme_override_fonts/font = ExtResource("3_x260n")
+theme_override_font_sizes/font_size = 24
 text = "SFX Volume"
 
 [node name="SFXSlider" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=867812575]
@@ -59,7 +80,9 @@ value = 0.2
 
 [node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2093792735]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.41526243, 0.55114466, 0.9929045, 1)
+theme_override_colors/font_color = Color(0.65882355, 1, 0.78039217, 1)
+theme_override_fonts/font = ExtResource("3_x260n")
+theme_override_font_sizes/font_size = 24
 text = "Music Volume"
 
 [node name="MusicSlider" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=642675508]
