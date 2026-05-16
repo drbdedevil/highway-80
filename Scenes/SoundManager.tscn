@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://lhvhn5gogsfp"]
+
+[ext_resource type="Script" uid="uid://yv3qxart1ac4" path="res://Scenes/MainMenuVolumeSettings.cs" id="1_eh0l7"]
+
+[node name="SoundManager" type="Node" unique_id=691116122]
+script = ExtResource("1_eh0l7")

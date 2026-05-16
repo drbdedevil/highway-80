@@ -3,39 +3,29 @@ using System;
 
 public partial class MainMenuVolumeSettings : Node
 {
-	private HSlider _sfxSlider;
-	private HSlider _musicSlider;
+	public static MainMenuVolumeSettings Instance { get; private set; }
+
 	private int _sfxBusIndex;
 	private int _musicBusIndex;
+	private const string ConfigPath = "user://settings.cfg";
+
+	public override void _EnterTree()
+	{
+		if (Instance == null)
+		{
+			Instance = this;
+			ProcessMode = ProcessModeEnum.Always;
+		}
+		else
+		{
+			QueueFree();
+		}
+	}
 
 	public override void _Ready()
 	{
-		_sfxSlider = GetNode<HSlider>("../MarginContainer/VBoxContainer/SFXSlider");
-		_musicSlider = GetNode<HSlider>("../MarginContainer/VBoxContainer/MusicSlider");
-
-		_sfxBusIndex = AudioServer.GetBusIndex("SFX");
-		_musicBusIndex = AudioServer.GetBusIndex("Music");
-
-		var config = new ConfigFile();
-		Error err = config.Load("user://settings.cfg");
-
-		float sfxValue = 0.5f;
-		float musicValue = 0.5f;
-
-		if (err == Error.Ok)
-		{
-			sfxValue = (float)config.GetValue("audio", "sfx_volume", 0.5);
-			musicValue = (float)config.GetValue("audio", "music_volume", 0.5);
-		}
-
-		AudioServer.SetBusVolumeDb(_sfxBusIndex, Mathf.LinearToDb(sfxValue));
-		AudioServer.SetBusVolumeDb(_musicBusIndex, Mathf.LinearToDb(musicValue));
-
-		_sfxSlider.Value = sfxValue;
-		_musicSlider.Value = musicValue;
-
-		_sfxSlider.ValueChanged += OnSfxVolumeChanged;
-		_musicSlider.ValueChanged += OnMusicVolumeChanged;
+		InitBuses();
+		LoadAndApplySettings();
 	}
 
 	public override void _Process(double delta)
@@ -43,25 +33,70 @@ public partial class MainMenuVolumeSettings : Node
 		
 	}
 
-	private void OnSfxVolumeChanged(double value)
+	private void InitBuses()
 	{
-		float linearValue = (float)value;
-		AudioServer.SetBusVolumeDb(_sfxBusIndex, Mathf.LinearToDb(linearValue));
-		SaveSettings(linearValue, (float)_musicSlider.Value);
+		_sfxBusIndex = AudioServer.GetBusIndex("SFX");
+		_musicBusIndex = AudioServer.GetBusIndex("Music");
+
+		if (_sfxBusIndex == -1)
+		{
+			AudioServer.AddBus();
+			AudioServer.SetBusName(AudioServer.BusCount - 1, "SFX");
+			_sfxBusIndex = AudioServer.GetBusIndex("SFX");
+		}
+		if (_musicBusIndex == -1)
+		{
+			AudioServer.AddBus();
+			AudioServer.SetBusName(AudioServer.BusCount - 1, "Music");
+			_musicBusIndex = AudioServer.GetBusIndex("Music");
+		}
 	}
 
-	private void OnMusicVolumeChanged(double value)
-	{
-		float linearValue = (float)value;
-		AudioServer.SetBusVolumeDb(_musicBusIndex, Mathf.LinearToDb(linearValue));
-		SaveSettings((float)_sfxSlider.Value, linearValue);
-	}
-
-	private void SaveSettings(float sfxVol, float musicVol)
+	private void LoadAndApplySettings()
 	{
 		var config = new ConfigFile();
-		config.SetValue("audio", "sfx_volume", sfxVol);
-		config.SetValue("audio", "music_volume", musicVol);
-		config.Save("user://settings.cfg");
+		Error err = config.Load(ConfigPath);
+
+		float sfx = 0.5f;
+		float music = 0.5f;
+
+		if (err == Error.Ok)
+		{
+			sfx = (float)config.GetValue("audio", "sfx_volume", 0.5);
+			music = (float)config.GetValue("audio", "music_volume", 0.5);
+		}
+
+		SetSfxVolume(sfx);
+		SetMusicVolume(music);
+	}
+
+	public void SetSfxVolume(float value)
+	{
+		AudioServer.SetBusVolumeDb(_sfxBusIndex, Mathf.LinearToDb(value));
+		SaveSetting("sfx_volume", value);
+	}
+
+	public void SetMusicVolume(float value)
+	{
+		AudioServer.SetBusVolumeDb(_musicBusIndex, Mathf.LinearToDb(value));
+		SaveSetting("music_volume", value);
+	}
+
+	public float GetSfxVolume()
+	{
+		return Mathf.DbToLinear(AudioServer.GetBusVolumeDb(_sfxBusIndex));
+	}
+
+	public float GetMusicVolume()
+	{
+		return Mathf.DbToLinear(AudioServer.GetBusVolumeDb(_musicBusIndex));
+	}
+
+	private void SaveSetting(string key, float value)
+	{
+		var config = new ConfigFile();
+		config.Load(ConfigPath);
+		config.SetValue("audio", key, value);
+		config.Save(ConfigPath);
 	}
 }

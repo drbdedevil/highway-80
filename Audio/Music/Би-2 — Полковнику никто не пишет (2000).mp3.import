@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bcodaittakmck"
+path="res://.godot/imported/Би-2 — Полковнику никто не пишет (2000).mp3-0c4e1359121a7cd8414bd72f6769b0fb.mp3str"
+
+[deps]
+
+source_file="res://Audio/Music/Би-2 — Полковнику никто не пишет (2000).mp3"
+dest_files=["res://.godot/imported/Би-2 — Полковнику никто не пишет (2000).mp3-0c4e1359121a7cd8414bd72f6769b0fb.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

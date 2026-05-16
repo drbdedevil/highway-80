@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://deqgrgiuqto0u"]
+
+[ext_resource type="Script" uid="uid://7yocvwom624a" path="res://Scenes/TestScene.cs" id="1_b5ayd"]
+[ext_resource type="AudioStream" uid="uid://bcodaittakmck" path="res://Audio/Music/Би-2 — Полковнику никто не пишет (2000).mp3" id="2_5lt6y"]
+
+[node name="TestScene" type="Control" unique_id=30377362]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_b5ayd")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=692241045]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_right = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=2049777295]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1928911056]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+text = "Выход"
+
+[node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=458490241]
+stream = ExtResource("2_5lt6y")
+autoplay = true
+bus = &"Music"
+parameters/looping = true

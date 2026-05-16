@@ -19,6 +19,10 @@ config/icon="res://icon.svg"
 
 buses/default_bus_layout="uid://b3uaoba1a078y"
 
+[autoload]
+
+MainMenuVolumeSettings="*uid://lhvhn5gogsfp"
+
 [display]
 
 window/size/mode=2
