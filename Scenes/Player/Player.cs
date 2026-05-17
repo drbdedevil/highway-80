@@ -20,6 +20,8 @@ public partial class Player : Node2D
 	public float collisionSlowdown = 0.4f;
 	[Export]
 	public float offroadSlowdown = 0.6f;
+	[Export] 
+	public float offroadAccelerationPenalty = 0.3f;
 	[Export]
 	public float collisionTimer = 0f;
 
@@ -41,28 +43,10 @@ public partial class Player : Node2D
 	public override void _Process(double delta)
 	{
 		float steer = Input.GetActionStrength("steer_right") - Input.GetActionStrength("steer_left");
-		float steerSpeed = 0.5f; // скорость поворота
+		float steerSpeed = 1.2f; // скорость поворота
 		worldPosition.X += steer * steerSpeed * (float)delta;
 
-		// Ограничение по ширине дороги (например, половина roadWidth)
-		float halfRoad = mainScene.roadWidth / 2f;
-		float offroadLimit = halfRoad * 1.2f;
-
-		worldPosition.X = Mathf.Clamp(
-			worldPosition.X,
-			-offroadLimit,
-			offroadLimit
-		);
-
-		if (Mathf.Abs(worldPosition.X) > halfRoad)
-		{
-			speed -= 4000f * (float)delta;
-
-			speed = Mathf.Max(
-				speed,
-				maxSpeed * 0.3f
-			);
-		}
+		worldPosition.X = Mathf.Clamp(worldPosition.X, -1.5f, 1.5f);
 
 		texturePlayer.Rotation = -steer * 0.3f; 
 	}
@@ -86,21 +70,36 @@ public partial class Player : Node2D
 		float dt = (float)delta;
 
 		if (collisionTimer > 0f)
-		{
 			collisionTimer -= dt;
-		}
 
 		if (noAccelerationTimer > 0f)
-		{
 			noAccelerationTimer -= dt;
+
+		float targetSpeed = maxSpeed;
+
+		// collision / slowdown lock
+		if (collisionTimer > 0f)
+			targetSpeed = Mathf.Min(targetSpeed, maxSpeed * collisionSlowdown);
+
+		// offroad penalty
+		float halfRoad = mainScene.roadWidth / 2f;
+		bool offroad = Mathf.Abs(worldPosition.X) > 1f;
+
+		if (offroad)
+		{
+			GD.Print("OFFROAD");
+			targetSpeed = Mathf.Min(targetSpeed, maxSpeed * offroadSlowdown);
+		}
+
+		// если есть lock на ускорение
+		if (noAccelerationTimer > 0f)
+		{
+			// не даём резко ускоряться, но и не ломаем физику
+			speed = Mathf.MoveToward(speed, targetSpeed, acceleration * 0.3f * dt);
 		}
 		else
 		{
-			speed = Mathf.MoveToward(
-				speed,
-				maxSpeed,
-				acceleration * dt
-			);
+			speed = Mathf.MoveToward(speed, targetSpeed, acceleration * dt);
 		}
 
 		worldPosition.Z += speed * dt * playerSpeedModifier;
