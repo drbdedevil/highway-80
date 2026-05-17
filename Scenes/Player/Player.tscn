@@ -16,7 +16,7 @@ Straight3 = ExtResource("4_825xp")
 Turn1 = ExtResource("5_ji083")
 Turn2 = ExtResource("6_0kmp4")
 playerHeightOffset = 200.0
-playerSpeedModifier = 0.3
+playerSpeedModifier = 0.4
 playerScaleK = 0.03
 acceleration = 2000.0
 

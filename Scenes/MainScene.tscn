@@ -11,12 +11,14 @@
 [ext_resource type="Texture2D" uid="uid://o0fuct1yrxkh" path="res://Sprite/Cars/DopCar/DopCar_4.png" id="8_enc0b"]
 [ext_resource type="Texture2D" uid="uid://d2y85w57mv34c" path="res://Sprite/Cars/DopCar/DopCar_5.png" id="9_hx8n4"]
 [ext_resource type="Texture2D" uid="uid://b8sjwgy566oy1" path="res://Sprite/Cars/DopCar/DopCar_6.png" id="10_i0j58"]
+[ext_resource type="PackedScene" uid="uid://d1c1u5yut0w2d" path="res://Scenes/Back/CityBackground.tscn" id="11_6t1o7"]
 [ext_resource type="PackedScene" uid="uid://bnlngpp51jikf" path="res://Scenes/PanelInterface/PanelInterface.tscn" id="12_xb4mg"]
 
 [node name="Node2D" type="Node2D" unique_id=769693664]
 script = ExtResource("1_hpc76")
 DrawDebug = true
 obstacleTextures = Array[Texture2D]([ExtResource("2_8ju71"), ExtResource("3_xb4mg"), ExtResource("4_6t1o7"), ExtResource("5_8ju71"), ExtResource("6_xc4hf"), ExtResource("7_6rnll"), ExtResource("8_enc0b"), ExtResource("9_hx8n4"), ExtResource("10_i0j58")])
+cityScene = ExtResource("11_6t1o7")
 
 [node name="Player" parent="." unique_id=2032750685 instance=ExtResource("2_tr2i4")]
 playerScaleK = 0.07
@@ -25,3 +27,4 @@ offroadSlowdown = 0.01
 offroadAccelerationPenalty = 0.1
 
 [node name="PanelInterface" parent="." unique_id=1280227375 instance=ExtResource("12_xb4mg")]
+offset_right = 0.0

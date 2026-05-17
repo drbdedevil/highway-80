@@ -77,16 +77,34 @@ public partial class Player : Node2D
 		{
 			leftHoldTime += dt;
 			rightHoldTime = Mathf.MoveToward(rightHoldTime, 0f, dt * 4f);
+			
+			if (mainScene?.cityBackground != null)
+			{
+				float newOffset = mainScene.cityBackground.offsetX + 200f * dt;
+				mainScene.cityBackground.UpdateOffset(newOffset);
+			}
 		}
 		else if (right)
 		{
 			rightHoldTime += dt;
 			leftHoldTime = Mathf.MoveToward(leftHoldTime, 0f, dt * 4f);
+			
+			if (mainScene?.cityBackground != null)
+			{
+				float newOffset = mainScene.cityBackground.offsetX - 200f * dt;
+				mainScene.cityBackground.UpdateOffset(newOffset);
+			}
 		}
 		else
 		{
 			leftHoldTime = Mathf.MoveToward(leftHoldTime, 0f, dt * 4f);
 			rightHoldTime = Mathf.MoveToward(rightHoldTime, 0f, dt * 4f);
+			
+			// if (mainScene?.cityBackground != null)
+			// {
+			// 	float newOffset = Mathf.Lerp(mainScene.cityBackground.offsetX, 0f, dt * 3f);
+			// 	mainScene.cityBackground.UpdateOffset(newOffset);
+			// }
 		}
 
 		float steer = Input.GetActionStrength("steer_right") - Input.GetActionStrength("steer_left");
@@ -134,11 +152,11 @@ public partial class Player : Node2D
 
 		bool offroad = mainScene.cameraX < leftBorder || mainScene.cameraX > rightBorder;
 
-		GD.Print($"cameraX={mainScene.cameraX}, roadCenter={roadCenter}, leftBorder={roadCenter - mainScene.roadWidth}, rightBorder={roadCenter + mainScene.roadWidth}");
+		// GD.Print($"cameraX={mainScene.cameraX}, roadCenter={roadCenter}, leftBorder={roadCenter - mainScene.roadWidth}, rightBorder={roadCenter + mainScene.roadWidth}");
 
 		if (offroad)
 		{
-			GD.Print("OFFROAD");
+			// GD.Print("OFFROAD");
 			targetSpeed = Mathf.Min(targetSpeed, maxSpeed * offroadSlowdown);
 		}
 

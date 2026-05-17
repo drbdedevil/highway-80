@@ -52,6 +52,10 @@ public partial class MainScene : Node2D
 
 	public float time => (float)Engine.GetProcessFrames() / 60f;
 
+	public CityBackground cityBackground;
+	[Export]
+	public PackedScene cityScene;
+
 	public override void _Ready()
 	{
 		// camera
@@ -70,6 +74,18 @@ public partial class MainScene : Node2D
 		// obstacles
 		visibleDistance = visibleSegments * segmentLength;
 		spawnCars();
+
+		// back
+		if (cityScene != null)
+		{
+			cityBackground = cityScene.Instantiate<Node2D>() as CityBackground;
+			AddChild(cityBackground);
+			MoveChild(cityBackground, 0);
+
+			cityBackground.Modulate = new Color(1, 1, 1, 0.75f);
+
+			UpdateBackgroundPosition();
+		}
 	}
 
 	public override void _Process(double delta)
@@ -86,11 +102,16 @@ public partial class MainScene : Node2D
 
 		cameraZ = player.worldPosition.Z - distToPlayer;
 		if (cameraZ < 0)
+		{
+			GD.Print("Finish");
 			cameraZ += roadLength;
+		}
 
 		// obstacles
 		updateObstacles((float)delta);
 		checkPlayerCollisions();
+
+		UpdateBackgroundPosition();
 
 		QueueRedraw();
 	}
@@ -296,7 +317,19 @@ public partial class MainScene : Node2D
 		int targetLength = (int)(period * periods / segmentLength);
 
 		createSection(targetLength);
-		GD.Print($"TargetLength={targetLength}");
+		
+		// Делаем последние 5 сегментов тёмными (финиш)
+		for (int n = 0; n < 5 && n < segments.Count; n++)
+		{
+			int index = segments.Count - 1 - n;
+			segments[index].Color = new Color(0.1f, 0.1f, 0.1f); // Тёмный цвет
+		}
+		
+		// Первые 5 сегментов делаем светлыми (старт)
+		for (int n = 0; n < 5 && n < segments.Count; n++)
+		{
+			segments[n].Color = new Color(0.3f, 0.3f, 0.3f); // Светлый цвет
+		}
 	}
 
 	public void createSection(int Segments)
@@ -718,5 +751,24 @@ public partial class MainScene : Node2D
 	public float getRoadCenterX(float z)
 	{
 		return getRoadCurve(z, time);
+	}
+
+	private void UpdateBackgroundPosition()
+	{
+		if (cityBackground != null)
+		{
+			Vector2 screen = GetViewport().GetVisibleRect().Size;
+			
+			// Максимальное смещение вниз (например, 300 пикселей)
+			float maxDownOffset = 100f;
+			
+			// Желаемая позиция (например, 1/3 экрана вниз)
+			float targetY = screen.Y / 3;
+			
+			// Ограничиваем максимальное смещение
+			float finalY = Mathf.Min(targetY, maxDownOffset);
+			
+			cityBackground.Position = new Vector2(0, finalY);
+		}
 	}
 }

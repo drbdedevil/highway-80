@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://d1c1u5yut0w2d"]
+
+[ext_resource type="Script" uid="uid://dpbw0r8y7ix2o" path="res://Scenes/Back/CityBackground.cs" id="1_6i1ww"]
+[ext_resource type="Texture2D" uid="uid://jusij7ypgoey" path="res://Sprite/Back/Back_Cityl.png" id="2_lfc2o"]
+
+[node name="CityBackground" type="Node2D" unique_id=1050577755]
+script = ExtResource("1_6i1ww")
+CityTexture = ExtResource("2_lfc2o")
+ScrollSpeed = 1000.0
