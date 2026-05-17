@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://k2lb60dnpeci" path="res://Scenes/MainMenuScene.cs" id="1_sb72h"]
 [ext_resource type="Shader" uid="uid://d32666p8k14h2" path="res://Shaders/background.gdshader" id="3_c7qge"]
-[ext_resource type="AudioStream" uid="uid://c6a4l8teee1nk" path="res://Audio/Music/15_MainMenu_Loop.wav" id="3_mxhvt"]
 [ext_resource type="FontFile" uid="uid://nrxbnyh22sqc" path="res://Fonts/PixeloidSans-Bold.otf" id="3_x260n"]
 [ext_resource type="AudioStream" uid="uid://dtgou3wa3c8li" path="res://Audio/SFX/12_Select.wav" id="4_gmxq7"]
+[ext_resource type="AudioStream" uid="uid://b1j4lj1m0vec4" path="res://Audio/Music/15_MainMenu_Loop.ogg" id="4_x260n"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6xh72"]
 shader = ExtResource("3_c7qge")
@@ -99,9 +99,10 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_x260n")
 text = "Exit"
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=1891720155]
-stream = ExtResource("3_mxhvt")
+stream = ExtResource("4_x260n")
 autoplay = true
 bus = &"Music"
+parameters/looping = true
 
 [node name="ClickSound" type="AudioStreamPlayer" parent="." unique_id=1097928391]
 stream = ExtResource("4_gmxq7")
