@@ -57,6 +57,8 @@ public partial class MainScene : Node2D
 	public PackedScene cityScene;
 
 	public PanelInterface panelInterface;
+	public Result resultScene = null;
+	private bool isPlaying = true;
 
 	public override void _Ready()
 	{
@@ -90,10 +92,14 @@ public partial class MainScene : Node2D
 		}
 
 		panelInterface = GetNode<PanelInterface>("PanelInterface/Panel");
+		resultScene = GetNode<Result>("Result");
 	}
 
 	public override void _Process(double delta)
 	{
+		if (!isPlaying)
+			return;
+
 		// player
 		player.updatePosition(delta);
 		panelInterface.speedometer.SetSpeed(player.speed);
@@ -111,6 +117,16 @@ public partial class MainScene : Node2D
 		{
 			float result = panelInterface.cLock._currentTime;
 			GD.Print($"Finish with={result}");
+
+			if (result <= 60f)
+			{
+				resultScene.ShowResult(true);
+			}
+			else
+			{
+				resultScene.ShowResult(false);
+			}
+			isPlaying = false;
 			
 			cameraZ += roadLength;
 		}
@@ -141,6 +157,9 @@ public partial class MainScene : Node2D
 
 	public override void _Draw()
 	{
+		if (!isPlaying)
+			return;
+
 		render3D();
 		renderObstacles();
 		

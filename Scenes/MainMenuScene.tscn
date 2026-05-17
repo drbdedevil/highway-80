@@ -15,6 +15,7 @@ shader = ExtResource("3_c7qge")
 
 [node name="MainMenuScene" type="Control" unique_id=638681758]
 layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -57,7 +58,7 @@ theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
 theme_override_fonts/font = ExtResource("3_x260n")
 theme_override_font_sizes/font_size = 24
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_c7qge")
-text = "Начать игру"
+text = "Start game"
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1038046048]
 layout_mode = 2
@@ -95,7 +96,7 @@ theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
 theme_override_fonts/font = ExtResource("3_x260n")
 theme_override_font_sizes/font_size = 24
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_x260n")
-text = "Выход"
+text = "Exit"
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=1891720155]
 stream = ExtResource("3_mxhvt")

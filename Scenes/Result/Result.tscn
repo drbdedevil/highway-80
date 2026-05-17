@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://cjq4plsun7cav"]
+
+[ext_resource type="FontFile" uid="uid://nrxbnyh22sqc" path="res://Fonts/PixeloidSans-Bold.otf" id="1_judbm"]
+[ext_resource type="Script" uid="uid://v6xd8b186mym" path="res://Scenes/Result/Result.cs" id="1_qi745"]
+[ext_resource type="Texture2D" uid="uid://ukgpjqg0l7jr" path="res://Sprite/window/victorys.png" id="2_68t2x"]
+[ext_resource type="Texture2D" uid="uid://ktudng28dte2" path="res://Sprite/window/Loss.png" id="3_hhu5s"]
+[ext_resource type="AudioStream" uid="uid://dtgou3wa3c8li" path="res://Audio/SFX/12_Select.wav" id="5_hhu5s"]
+[ext_resource type="AudioStream" uid="uid://c5y7wvb1rga3e" path="res://Audio/SFX/13_Victory.wav" id="6_l78cb"]
+[ext_resource type="AudioStream" uid="uid://c7ut56eh88mtw" path="res://Audio/SFX/14_Lose.wav" id="7_p28xs"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qi745"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_r5k7t"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_68t2x"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hhu5s"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sjiax"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l78cb"]
+
+[node name="Result" type="Control" unique_id=897699216 node_paths=PackedStringArray("WinBackground", "LoseBackground", "TitleLabel", "RestartButton", "MenuButton")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qi745")
+WinBackground = NodePath("WindowBox/WinBackground")
+LoseBackground = NodePath("WindowBox/LoseBackground")
+TitleLabel = NodePath("WindowBox/VBoxContainer/TitleLabel")
+RestartButton = NodePath("WindowBox/VBoxContainer/RestartButton")
+MenuButton = NodePath("WindowBox/VBoxContainer/MenuButton")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1396188161]
+modulate = Color(0, 0, 0, 0.27450982)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WindowBox" type="Control" parent="." unique_id=502808586]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -438.5
+offset_top = -270.0
+offset_right = 438.5
+offset_bottom = 270.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WinBackground" type="TextureRect" parent="WindowBox" unique_id=1433455145]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_68t2x")
+expand_mode = 1
+
+[node name="LoseBackground" type="TextureRect" parent="WindowBox" unique_id=1243604380]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_hhu5s")
+expand_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="WindowBox" unique_id=790992083]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 341.5
+offset_top = 159.0
+offset_right = -365.5
+offset_bottom = -190.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="WindowBox/VBoxContainer" unique_id=66529053]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.28037193, 0.68758225, 0.029329339, 1)
+theme_override_fonts/font = ExtResource("1_judbm")
+text = "Example"
+
+[node name="RestartButton" type="Button" parent="WindowBox/VBoxContainer" unique_id=620854202]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.11764706, 0.8352941, 0.49411765, 1)
+theme_override_colors/font_pressed_color = Color(0.08627451, 0.5803922, 0.34117648, 1)
+theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
+theme_override_fonts/font = ExtResource("1_judbm")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_qi745")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_r5k7t")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_68t2x")
+text = "Restart game"
+
+[node name="MenuButton" type="Button" parent="WindowBox/VBoxContainer" unique_id=1855865287]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.11764706, 0.8352941, 0.49411765, 1)
+theme_override_colors/font_pressed_color = Color(0.08627451, 0.5803922, 0.34117648, 1)
+theme_override_colors/font_hover_color = Color(0.3137255, 1, 0.627451, 1)
+theme_override_fonts/font = ExtResource("1_judbm")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_hhu5s")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_sjiax")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_l78cb")
+text = "Go to menu"
+
+[node name="ClickSound" type="AudioStreamPlayer" parent="." unique_id=1578921389]
+stream = ExtResource("5_hhu5s")
+bus = &"SFX"
+
+[node name="WinSound" type="AudioStreamPlayer" parent="." unique_id=270482462]
+stream = ExtResource("6_l78cb")
+bus = &"SFX"
+
+[node name="LoseSound" type="AudioStreamPlayer" parent="." unique_id=1499826095]
+stream = ExtResource("7_p28xs")
+bus = &"SFX"
