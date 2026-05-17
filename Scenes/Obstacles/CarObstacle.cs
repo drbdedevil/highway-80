@@ -12,3 +12,9 @@ public class CarObstacle
 
     public bool IsChangingLane = false;
 }
+
+public class ObstacleRenderData
+{
+	public CarObstacle Obstacle;
+	public Rect2 Rect;
+}

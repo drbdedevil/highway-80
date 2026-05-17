@@ -5,10 +5,14 @@
 
 [node name="Player" type="Node2D" unique_id=2032750685]
 script = ExtResource("1_s0eop")
-playerHeightOffset = 20.0
-playerSpeedModifier = 2.0
+playerHeightOffset = 300.0
+playerSpeedModifier = 0.5
+playerScaleK = 0.05
+acceleration = 2000.0
+offroadSlowdown = 0.05
 
 [node name="Texture" type="TextureRect" parent="." unique_id=1535683970]
+modulate = Color(1, 1, 1, 0.20392157)
 offset_right = 128.0
 offset_bottom = 128.0
 size_flags_horizontal = 4

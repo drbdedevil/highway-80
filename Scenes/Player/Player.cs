@@ -10,6 +10,18 @@ public partial class Player : Node2D
 	public float playerHeightOffset = 0f;
 	[Export]
 	public float playerSpeedModifier = 1f;
+	[Export]
+	public float playerScaleK = 0.1f;
+
+	[Export]
+	public float acceleration = 800f;
+	public float noAccelerationTimer = 0f;
+	[Export]
+	public float collisionSlowdown = 0.4f;
+	[Export]
+	public float offroadSlowdown = 0.6f;
+	[Export]
+	public float collisionTimer = 0f;
 
 	public Godot.Vector3 worldPosition = new Godot.Vector3();
 
@@ -34,7 +46,23 @@ public partial class Player : Node2D
 
 		// Ограничение по ширине дороги (например, половина roadWidth)
 		float halfRoad = mainScene.roadWidth / 2f;
-		worldPosition.X = Mathf.Clamp(worldPosition.X, -halfRoad, halfRoad);
+		float offroadLimit = halfRoad * 1.2f;
+
+		worldPosition.X = Mathf.Clamp(
+			worldPosition.X,
+			-offroadLimit,
+			offroadLimit
+		);
+
+		if (Mathf.Abs(worldPosition.X) > halfRoad)
+		{
+			speed -= 4000f * (float)delta;
+
+			speed = Mathf.Max(
+				speed,
+				maxSpeed * 0.3f
+			);
+		}
 
 		texturePlayer.Rotation = -steer * 0.3f; 
 	}
@@ -55,7 +83,27 @@ public partial class Player : Node2D
 
 	public void updatePosition(double delta)
 	{
-		worldPosition.Z += speed * (float)delta * playerSpeedModifier;
+		float dt = (float)delta;
+
+		if (collisionTimer > 0f)
+		{
+			collisionTimer -= dt;
+		}
+
+		if (noAccelerationTimer > 0f)
+		{
+			noAccelerationTimer -= dt;
+		}
+		else
+		{
+			speed = Mathf.MoveToward(
+				speed,
+				maxSpeed,
+				acceleration * dt
+			);
+		}
+
+		worldPosition.Z += speed * dt * playerSpeedModifier;
 
 		if (worldPosition.Z >= mainScene.roadLength)
 			worldPosition.Z -= mainScene.roadLength;
@@ -71,20 +119,19 @@ public partial class Player : Node2D
 		float originalWidth = texturePlayer.Texture.GetWidth();
 		float originalHeight = texturePlayer.Texture.GetHeight();
 
-		// Желаемая ширина — 10% от ширины экрана
-		float targetWidth = screen.X * 0.1f;
+		// Пересчитываем офсет при каждом обновлении (адаптивно к экрану)
+		playerHeightOffset = screen.Y / 4;  // 1/4 от высоты экрана
+		
+		float targetWidth = screen.X * playerScaleK;
 		float targetHeight = targetWidth * originalHeight / originalWidth;
 
-		// Устанавливаем размер через Scale (проще и надёжнее)
 		float scaleX = targetWidth / originalWidth;
 		float scaleY = targetHeight / originalHeight;
 		texturePlayer.Scale = new Godot.Vector2(scaleX, scaleY);
 
-		// Вычисляем позицию: центр по X, низ по Y
 		float posX = (screen.X - targetWidth) / 2;
 		float posY = screen.Y - targetHeight - playerHeightOffset;
 
-		// Сбрасываем привязки, чтобы позиция была абсолютной
 		texturePlayer.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
 		texturePlayer.Position = new Godot.Vector2(posX, posY);
 	}

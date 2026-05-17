@@ -5,5 +5,6 @@
 
 [node name="Node2D" type="Node2D" unique_id=769693664]
 script = ExtResource("1_hpc76")
+DrawDebug = true
 
 [node name="Player" parent="." unique_id=2032750685 instance=ExtResource("2_tr2i4")]

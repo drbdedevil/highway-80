@@ -19,10 +19,14 @@ public class RoadSegment
 
 public partial class MainScene : Node2D
 {
+	[Export]
+	public bool DrawDebug = false;
+
 	public Player player = null;
 
 	public List<RoadSegment> segments = new();
 	public List<CarObstacle> obstacles = new();
+	public List<ObstacleRenderData> obstacleRects = new();
 
 	public float cameraX = 0;
 	public float cameraY = 600;
@@ -62,7 +66,7 @@ public partial class MainScene : Node2D
 	public override void _Process(double delta)
 	{
 		// player
-		player.updatePosition(Math.Min(1, delta / 10));
+		player.updatePosition(delta);
 
 		// camera
 		// cameraZ += speed * (float)delta;
@@ -73,6 +77,7 @@ public partial class MainScene : Node2D
 
 		// obstacles
 		updateObstacles((float)delta);
+		checkPlayerCollisions();
 
 		QueueRedraw();
 	}
@@ -96,6 +101,11 @@ public partial class MainScene : Node2D
 	{
 		render3D();
 		renderObstacles();
+		
+		if (DrawDebug)
+		{
+			renderPlayerDebug();
+		}
 	}
 
 	public void render3D()
@@ -320,6 +330,8 @@ public partial class MainScene : Node2D
 
 	public void renderObstacles()
 	{
+		obstacleRects.Clear();
+
 		Vector2 screen = GetViewport().GetVisibleRect().Size;
 		
 		// Сначала вычисляем расстояние до камеры для всех машин
@@ -361,7 +373,24 @@ public partial class MainScene : Node2D
 				spriteHeight
 			);
 			
+			Rect2 collisionRect = new Rect2(
+				rect.Position.X + rect.Size.X * 0.4f,
+				rect.Position.Y + rect.Size.Y * 0.4f,
+				rect.Size.X * 0.2f,
+				rect.Size.Y * 0.2f
+			);
+			obstacleRects.Add(new ObstacleRenderData
+			{
+				Obstacle = car,
+				Rect = collisionRect
+			});
+
 			DrawTextureRect(car.Texture, rect, false);
+
+			if (DrawDebug)
+			{
+				DrawRect(collisionRect, Colors.Red, false, 2f);
+			}
 		}
 	}
 
@@ -474,5 +503,72 @@ public partial class MainScene : Node2D
 		}
 
 		return true;
+	}
+
+	public void checkPlayerCollisions()
+	{
+		if (player.collisionTimer > 0f)
+			return;
+
+		float playerWidth =
+			player.texturePlayer.Texture.GetWidth() *
+			player.texturePlayer.Scale.X;
+
+		float playerHeight =
+			player.texturePlayer.Texture.GetHeight() *
+			player.texturePlayer.Scale.Y;
+
+		Rect2 playerRect = new Rect2(
+			player.texturePlayer.Position.X + playerWidth * 0.125f,
+			player.texturePlayer.Position.Y + playerHeight * 0.125f,
+			playerWidth * 0.75f,
+			playerHeight * 0.75f
+		);
+
+		bool hit = false;
+		float bestObstacleSpeed = player.speed;
+
+		foreach (var obstacleData in obstacleRects)
+		{
+			if (!playerRect.Intersects(obstacleData.Rect))
+				continue;
+
+			var obstacle = obstacleData.Obstacle;
+
+			hit = true;
+
+			// берём самое медленное препятствие, с которым столкнулись
+			bestObstacleSpeed = Math.Min(bestObstacleSpeed, obstacle.Speed);
+		}
+
+		if (!hit)
+			return;
+
+		// мягко “прилипли” к скорости препятствия
+		player.speed = bestObstacleSpeed;
+
+		// небольшой lock, чтобы не дрожало
+		player.collisionTimer = 0.25f;
+		player.noAccelerationTimer = 0.6f;
+	}
+
+	public void renderPlayerDebug()
+	{
+		float playerWidth =
+			player.texturePlayer.Texture.GetWidth() *
+			player.texturePlayer.Scale.X;
+
+		float playerHeight =
+			player.texturePlayer.Texture.GetHeight() *
+			player.texturePlayer.Scale.Y;
+
+		Rect2 playerRect = new Rect2(
+			player.texturePlayer.Position.X + playerWidth * 0.125f,
+			player.texturePlayer.Position.Y + playerHeight * 0.125f,
+			playerWidth * 0.75f,
+			playerHeight * 0.75f
+		);
+
+		DrawRect(playerRect, Colors.Red, false, 2f);
 	}
 }
