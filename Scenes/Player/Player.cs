@@ -1,10 +1,26 @@
 using Godot;
 using System.Numerics;
 
+public enum SteeringVisualState
+{
+	Straight,
+	TurnLightLeft,
+	TurnHardLeft,
+	TurnLightRight,
+	TurnHardRight
+}
+
 public partial class Player : Node2D
 {
 	public MainScene mainScene = null;
 	public TextureRect texturePlayer = null;
+
+	[Export] public Texture2D Straight1;
+	[Export] public Texture2D Straight2;
+	[Export] public Texture2D Straight3;
+
+	[Export] public Texture2D Turn1;
+	[Export] public Texture2D Turn2;
 
 	[Export]
 	public float playerHeightOffset = 0f;
@@ -34,6 +50,15 @@ public partial class Player : Node2D
 	public float maxSpeed;
 	public float speed;
 
+	public float leftHoldTime = 0f;
+	public float rightHoldTime = 0f;
+
+	[Export]
+	public float hardTurnThreshold = 0.25f;
+	private Tween spriteTween;
+	private Tween rotationTween;
+	private SteeringVisualState lastSteeringState = SteeringVisualState.Straight;
+
 	public override void _Ready()
 	{
 		base._Ready();
@@ -43,13 +68,33 @@ public partial class Player : Node2D
 
 	public override void _Process(double delta)
 	{
-		float steer = Input.GetActionStrength("steer_right") - Input.GetActionStrength("steer_left");
-		float steerSpeed = 1.7f; // скорость поворота
-		worldPosition.X += steer * steerSpeed * (float)delta;
+		float dt = (float)delta;
 
+		bool left = Input.IsActionPressed("steer_left");
+		bool right = Input.IsActionPressed("steer_right");
+
+		if (left)
+		{
+			leftHoldTime += dt;
+			rightHoldTime = Mathf.MoveToward(rightHoldTime, 0f, dt * 4f);
+		}
+		else if (right)
+		{
+			rightHoldTime += dt;
+			leftHoldTime = Mathf.MoveToward(leftHoldTime, 0f, dt * 4f);
+		}
+		else
+		{
+			leftHoldTime = Mathf.MoveToward(leftHoldTime, 0f, dt * 4f);
+			rightHoldTime = Mathf.MoveToward(rightHoldTime, 0f, dt * 4f);
+		}
+
+		float steer = Input.GetActionStrength("steer_right") - Input.GetActionStrength("steer_left");
+		float steerSpeed = 1.7f;
+		worldPosition.X += steer * steerSpeed * dt;
 		worldPosition.X = Mathf.Clamp(worldPosition.X, -5f, 5f);
 
-		texturePlayer.Rotation = -steer * 0.3f; 
+		updateSpriteSmooth(getVisualState());
 	}
 
 	public void init(MainScene inMainScene)
@@ -139,5 +184,132 @@ public partial class Player : Node2D
 
 		texturePlayer.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
 		texturePlayer.Position = new Godot.Vector2(posX, posY);
+	}
+
+	public void updateSprite(SteeringVisualState state)
+	{
+		texturePlayer.FlipH = false;
+
+		switch (state)
+		{
+			case SteeringVisualState.Straight:
+			{
+				int frame = (int)(Time.GetTicksMsec() / 120 % 3);
+
+				switch (frame)
+				{
+					case 0:
+						texturePlayer.Texture = Straight1;
+						break;
+
+					case 1:
+						texturePlayer.Texture = Straight2;
+						break;
+
+					case 2:
+						texturePlayer.Texture = Straight3;
+						break;
+				}
+
+				break;
+			}
+
+			case SteeringVisualState.TurnLightLeft:
+				texturePlayer.Texture = Turn1;
+				break;
+
+			case SteeringVisualState.TurnHardLeft:
+				texturePlayer.Texture = Turn2;
+				break;
+
+			case SteeringVisualState.TurnLightRight:
+				texturePlayer.Texture = Turn1;
+				texturePlayer.FlipH = true;
+				break;
+
+			case SteeringVisualState.TurnHardRight:
+				texturePlayer.Texture = Turn2;
+				texturePlayer.FlipH = true;
+				break;
+		}
+	}
+
+	public SteeringVisualState getVisualState()
+	{
+		bool left = Input.IsActionPressed("steer_left");
+		bool right = Input.IsActionPressed("steer_right");
+
+		if (left)
+		{
+			if (leftHoldTime >= hardTurnThreshold)
+				return SteeringVisualState.TurnHardLeft;
+
+			return SteeringVisualState.TurnLightLeft;
+		}
+
+		if (right)
+		{
+			if (rightHoldTime >= hardTurnThreshold)
+				return SteeringVisualState.TurnHardRight;
+
+			return SteeringVisualState.TurnLightRight;
+		}
+
+		return SteeringVisualState.Straight;
+	}
+
+	public async void updateSpriteSmooth(SteeringVisualState newState)
+	{
+		if (lastSteeringState == newState)
+		{
+			updateSprite(newState);
+			return;
+		}
+		
+		// Плавный поворот руля
+		float targetRotation = 0f;
+		if (newState == SteeringVisualState.TurnLightLeft)
+			targetRotation = -0.05f;
+		else if (newState == SteeringVisualState.TurnHardLeft)
+			targetRotation = -0.1f;
+		else if (newState == SteeringVisualState.TurnLightRight)
+			targetRotation = 0.05f;
+		else if (newState == SteeringVisualState.TurnHardRight)
+			targetRotation = 0.1f;
+		
+		// Анимация поворота
+		float startRotation = texturePlayer.Rotation;
+		for (float t = 0; t < 0.15f; t += 0.016f)
+		{
+			texturePlayer.Rotation = Mathf.Lerp(startRotation, targetRotation, t / 0.15f);
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		}
+		texturePlayer.Rotation = targetRotation;
+		
+		// Если возвращаемся в прямое положение
+		if (lastSteeringState != SteeringVisualState.Straight && newState == SteeringVisualState.Straight)
+		{
+			// Показываем промежуточный спрайт
+			if (lastSteeringState == SteeringVisualState.TurnHardLeft || 
+				lastSteeringState == SteeringVisualState.TurnLightLeft)
+			{
+				texturePlayer.Texture = Turn1;
+				texturePlayer.FlipH = false;
+			}
+			else
+			{
+				texturePlayer.Texture = Turn1;
+				texturePlayer.FlipH = true;
+			}
+			
+			await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
+			updateSprite(newState);
+		}
+		else
+		{
+			updateSprite(newState);
+		}
+		
+		lastSteeringState = newState;
 	}
 }

@@ -28,6 +28,9 @@ public partial class MainScene : Node2D
 	public List<CarObstacle> obstacles = new();
 	public List<ObstacleRenderData> obstacleRects = new();
 
+	[Export]
+	public Godot.Collections.Array<Texture2D> obstacleTextures = new();
+
 	public float cameraX = 0;
 	public float cameraY = 600;
 	public float cameraZ = 0;
@@ -133,13 +136,18 @@ public partial class MainScene : Node2D
 			var currIndex = (baseIndex + i) % totalSegments;
 			var currSegment = segments[currIndex];
 
-			var offsetZ = (currIndex < baseIndex) ? roadLength : 0;
+			float currWorldZ = currSegment.Point.World.Z;
+			float worldZ = currWorldZ;
 			
-			// float z = currSegment.Point.World.Z;
-			// float curve = getRoadCurve(z, time);
-			// currSegment.Point.World.X = curve;
+			// Если сегмент "позади" базового по индексу, добавляем roadLength
+			if (currIndex < baseIndex)
+				worldZ += roadLength;
+			
+			float relativeZ = worldZ - cameraZ;
+		
+			if (relativeZ <= 0) continue;
 
-			project3D(currSegment.Point, offsetZ);
+			project3D(currSegment.Point, 0, relativeZ);
 
 			var currBottomLine = currSegment.Point.Screen.Y;
 
@@ -153,8 +161,12 @@ public partial class MainScene : Node2D
 				// prevSegment.Point.World.X = prevCurve;
 				
 				// Повторно проектируем предыдущий сегмент с новой кривизной
-				float prevOffsetZ = (prevIndex < baseIndex) ? roadLength : 0;
-				project3D(prevSegment.Point, prevOffsetZ);
+				float prevWorldZ = prevSegment.Point.World.Z;
+				if (prevIndex < baseIndex)
+					prevWorldZ += roadLength;
+				
+				float prevRelativeZ = prevWorldZ - cameraZ;
+				project3D(prevSegment.Point, 0, prevRelativeZ);
 
 				var p1 = prevSegment.Point.Screen;
 				var p2 = currSegment.Point.Screen;
@@ -164,7 +176,7 @@ public partial class MainScene : Node2D
 
 				if (currIndex % 5 == 0)
 				{
-					drawDashedLineMarking(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Colors.White);
+					drawDashedLineMarking(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, new Color(1.0000f, 0.9686f, 0.9735f));
 				}
 				if (currIndex % 3 == 0)
 				{
@@ -184,7 +196,7 @@ public partial class MainScene : Node2D
 		Point.Screen.Y = screen.Y - Point.World.Z;
 		Point.Screen.Z = roadWidth;
 	}
-	public void project3D(SegmentPoint Point, float offsetZ)
+	public void project3D(SegmentPoint Point, float offsetZ, float relativeZ)
 	{
 		Vector2 screen = GetViewport().GetVisibleRect().Size;
 
@@ -192,7 +204,7 @@ public partial class MainScene : Node2D
 
 		var transX = (Point.World.X + curve) - cameraX;
 		var transY = Point.World.Y - cameraY;
-		var transZ = Point.World.Z - cameraZ - offsetZ;
+		var transZ = relativeZ; // Используем уже вычисленный relativeZ
 
 		float rotatedX = transX * Mathf.Cos(cameraYaw) - transZ * Mathf.Sin(cameraYaw);
 		float rotatedZ = transX * Mathf.Sin(cameraYaw) + transZ * Mathf.Cos(cameraYaw);
@@ -261,10 +273,10 @@ public partial class MainScene : Node2D
 	private void drawRoadBoundaries(float x1, float y1, float w1, float x2, float y2, float w2)
 	{
 		// Левая граница (красная)
-		DrawLine(new Vector2(x1 - w1, y1), new Vector2(x2 - w2, y2), Colors.Green, 4f);
+		DrawLine(new Vector2(x1 - w1, y1), new Vector2(x2 - w2, y2), new Color(0.2863f, 0.9059f, 0.9255f), 4f);
 		
 		// Правая граница (красная)
-		DrawLine(new Vector2(x1 + w1, y1), new Vector2(x2 + w2, y2), Colors.Green, 4f);
+		DrawLine(new Vector2(x1 + w1, y1), new Vector2(x2 + w2, y2), new Color(0.2863f, 0.9059f, 0.9255f), 4f);
 		
 		// Внутренние предупредительные зоны (желтые) - за 80% от ширины дороги
 		float dangerZone1 = w1 * 0.95f;
@@ -279,7 +291,12 @@ public partial class MainScene : Node2D
 
 	public void createRoad()
 	{
-		createSection(1000);
+		float period = 69800f; // Примерный период
+		int periods = 3;
+		int targetLength = (int)(period * periods / segmentLength);
+
+		createSection(targetLength);
+		GD.Print($"TargetLength={targetLength}");
 	}
 
 	public void createSection(int Segments)
@@ -301,7 +318,7 @@ public partial class MainScene : Node2D
 					Screen = new Vector3(0, 0, 0),
 					Scale = -1
 				},
-				Color = new Color(0.05f, 0.05f, 0.05f)
+				Color = new Color(0.0843f, 0.0294f, 0.1647f)
 			});
 	}
 
@@ -317,7 +334,7 @@ public partial class MainScene : Node2D
 
 	public void spawnCars()
 	{
-		var tex = GD.Load<Texture2D>("res://icon.svg");
+		// var tex = GD.Load<Texture2D>("res://icon.svg");
 
 		float spacing = 2500f;
 
@@ -325,6 +342,9 @@ public partial class MainScene : Node2D
 
 		for (int i = 0; i < carCount; i++)
 		{
+			int randIndexTexture = GD.RandRange(0, obstacleTextures.Count - 1);;
+			var randTexture = obstacleTextures[randIndexTexture];
+
 			int carsInRow = GD.RandRange(1, 3);
 
 			List<int> usedLanes = new();
@@ -343,9 +363,23 @@ public partial class MainScene : Node2D
 
 				float laneX = getLaneCenter(lane);
 
+				float textureWidth = randTexture.GetWidth();
+				float textureHeight = randTexture.GetHeight();
+				float textureScale = 0.05f;
+				if (randIndexTexture == 1)
+				{
+					textureScale = 0.08f;
+				}
+				else if (randIndexTexture == 2 || randIndexTexture == 7 || randIndexTexture == 8)
+				{
+					textureScale = 0.1f;
+				}
+				float worldWidth = textureWidth * textureScale;
+				float worldHeight = textureHeight * textureScale;
+
 				obstacles.Add(new CarObstacle
 				{
-					Texture = tex,
+					Texture = randTexture,
 
 					World = new Vector3(
 						laneX,
@@ -355,7 +389,9 @@ public partial class MainScene : Node2D
 
 					Speed = 700 + GD.Randf() * 600,
 					CurrentLane = lane,
-					TargetLane = lane
+					TargetLane = lane,
+					Width = worldWidth,
+					Height = worldHeight
 				});
 			}
 		}
@@ -433,8 +469,8 @@ public partial class MainScene : Node2D
 
 			float screenY = (1 - scale * transY) * screen.Y / 2;
 			
-			float spriteWidth = car.Texture.GetWidth() * scale * screen.X / 2;
-			float spriteHeight = car.Texture.GetHeight() * scale * screen.X / 2;
+			float spriteWidth = car.Width * scale * screen.X;
+			float spriteHeight = car.Height * scale * screen.X;
 			
 			Rect2 rect = new Rect2(
 				screenX - spriteWidth / 2,
@@ -443,11 +479,14 @@ public partial class MainScene : Node2D
 				spriteHeight
 			);
 			
+			float hitboxWidth = rect.Size.X * 0.6f;
+			float hitboxHeight = rect.Size.Y * 0.25f;
+
 			Rect2 collisionRect = new Rect2(
-				rect.Position.X + rect.Size.X * 0.4f,
-				rect.Position.Y + rect.Size.Y * 0.4f,
-				rect.Size.X * 0.2f,
-				rect.Size.Y * 0.2f
+				rect.Position.X + rect.Size.X * 0.2f,
+				rect.Position.Y + rect.Size.Y * 0.75f,
+				hitboxWidth,
+				hitboxHeight
 			);
 			obstacleRects.Add(new ObstacleRenderData
 			{
@@ -589,10 +628,10 @@ public partial class MainScene : Node2D
 			player.texturePlayer.Scale.Y;
 
 		Rect2 playerRect = new Rect2(
-			player.texturePlayer.Position.X + playerWidth * 0.125f,
-			player.texturePlayer.Position.Y + playerHeight * 0.125f,
-			playerWidth * 0.75f,
-			playerHeight * 0.75f
+			player.texturePlayer.Position.X + playerWidth * 0.25f,
+			player.texturePlayer.Position.Y + playerHeight * 0.7f,
+			playerWidth * 0.5f,
+			playerHeight * 0.25f
 		);
 
 		bool hit = false;
@@ -633,10 +672,10 @@ public partial class MainScene : Node2D
 			player.texturePlayer.Scale.Y;
 
 		Rect2 playerRect = new Rect2(
-			player.texturePlayer.Position.X + playerWidth * 0.125f,
-			player.texturePlayer.Position.Y + playerHeight * 0.125f,
-			playerWidth * 0.75f,
-			playerHeight * 0.75f
+			player.texturePlayer.Position.X + playerWidth * 0.25f,
+			player.texturePlayer.Position.Y + playerHeight * 0.7f,
+			playerWidth * 0.5f,
+			playerHeight * 0.25f
 		);
 
 		DrawRect(playerRect, Colors.Red, false, 2f);

@@ -11,6 +11,8 @@ public class CarObstacle
     public float LaneChangeProgress = 1f;
 
     public bool IsChangingLane = false;
+    public float Width = 220f;
+    public float Height = 420f;
 }
 
 public class ObstacleRenderData

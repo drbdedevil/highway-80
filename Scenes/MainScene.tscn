@@ -1,10 +1,21 @@
 [gd_scene format=3 uid="uid://bvgiheywflgwl"]
 
 [ext_resource type="Script" uid="uid://xx8mcwl8gjd0" path="res://Scenes/MainScene.cs" id="1_hpc76"]
+[ext_resource type="Texture2D" uid="uid://ds7nfjswo3p32" path="res://Sprite/Cars/DopCar/Car_DeLorean.png" id="2_8ju71"]
 [ext_resource type="PackedScene" uid="uid://dqssciymvo4x6" path="res://Scenes/Player/Player.tscn" id="2_tr2i4"]
+[ext_resource type="Texture2D" uid="uid://bm8hey4g2p46v" path="res://Sprite/Cars/DopCar/Car_Hunters.png" id="3_xb4mg"]
+[ext_resource type="Texture2D" uid="uid://f8xekbev48qi" path="res://Sprite/Cars/DopCar/Car_Starship.png" id="4_6t1o7"]
+[ext_resource type="Texture2D" uid="uid://bets3q3wgvc3t" path="res://Sprite/Cars/DopCar/DopCar_1l.png" id="5_8ju71"]
+[ext_resource type="Texture2D" uid="uid://osm01n4m6g7c" path="res://Sprite/Cars/DopCar/DopCar_2.png" id="6_xc4hf"]
+[ext_resource type="Texture2D" uid="uid://cpwdr0w1jhsn1" path="res://Sprite/Cars/DopCar/DopCar_3.png" id="7_6rnll"]
+[ext_resource type="Texture2D" uid="uid://o0fuct1yrxkh" path="res://Sprite/Cars/DopCar/DopCar_4.png" id="8_enc0b"]
+[ext_resource type="Texture2D" uid="uid://d2y85w57mv34c" path="res://Sprite/Cars/DopCar/DopCar_5.png" id="9_hx8n4"]
+[ext_resource type="Texture2D" uid="uid://b8sjwgy566oy1" path="res://Sprite/Cars/DopCar/DopCar_6.png" id="10_i0j58"]
 
 [node name="Node2D" type="Node2D" unique_id=769693664]
 script = ExtResource("1_hpc76")
+DrawDebug = true
+obstacleTextures = Array[Texture2D]([ExtResource("2_8ju71"), ExtResource("3_xb4mg"), ExtResource("4_6t1o7"), ExtResource("5_8ju71"), ExtResource("6_xc4hf"), ExtResource("7_6rnll"), ExtResource("8_enc0b"), ExtResource("9_hx8n4"), ExtResource("10_i0j58")])
 
 [node name="Player" parent="." unique_id=2032750685 instance=ExtResource("2_tr2i4")]
 playerScaleK = 0.1
