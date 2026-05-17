@@ -21,7 +21,8 @@ public partial class MainScene : Node2D
 {
 	public Player player = null;
 
-	List<RoadSegment> segments = new();
+	public List<RoadSegment> segments = new();
+	public List<CarObstacle> obstacles = new();
 
 	public float cameraX = 0;
 	public float cameraY = 600;
@@ -32,7 +33,8 @@ public partial class MainScene : Node2D
 	public float segmentLength = 200f;
 	public int totalSegments = 0;
 	public int visibleSegments = 200;
-	public float roadWidth = 1000;
+	public float visibleDistance = 0;
+	public float roadWidth = 700;
 	public float roadLength = 0;
 	public int roadLanes = 5;
 	public float perspective = 500f;
@@ -46,11 +48,15 @@ public partial class MainScene : Node2D
 		createRoad();
 		totalSegments = segments.Count;
 		roadLength = totalSegments * segmentLength;
-
+		
 		// player
 		player = GetNode("Player") as Player;
 		player.init(this);
 		player.restart();
+
+		// obstacles
+		visibleDistance = visibleSegments * segmentLength;
+		spawnCars();
 	}
 
 	public override void _Process(double delta)
@@ -64,6 +70,9 @@ public partial class MainScene : Node2D
 		cameraZ = player.worldPosition.Z - distToPlayer;
 		if (cameraZ < 0)
 			cameraZ += roadLength;
+
+		// obstacles
+		updateObstacles((float)delta);
 
 		QueueRedraw();
 	}
@@ -86,6 +95,7 @@ public partial class MainScene : Node2D
 	public override void _Draw()
 	{
 		render3D();
+		renderObstacles();
 	}
 
 	public void render3D()
@@ -120,7 +130,7 @@ public partial class MainScene : Node2D
 				drawSegment(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, currSegment.Color);
 				drawEdges(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Godot.Colors.DarkGoldenrod);
 
-				if (currIndex % 3 == 0)
+				if (currIndex % 5 == 0)
 				{
 					drawDashedLineMarking(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Godot.Colors.White);
 				}
@@ -237,5 +247,232 @@ public partial class MainScene : Node2D
 		int index = (int)(positionZ / this.segmentLength) % totalSegments;
 
 		return segments[index];
+	}
+
+	public void spawnCars()
+	{
+		var tex = GD.Load<Texture2D>("res://icon.svg");
+
+		float spacing = 2500f;
+
+		int carCount = (int)(roadLength / spacing);
+
+		for (int i = 0; i < carCount; i++)
+		{
+			int carsInRow = GD.RandRange(1, 3);
+
+			List<int> usedLanes = new();
+
+			for (int j = 0; j < carsInRow; j++)
+			{
+				int lane;
+
+				do
+				{
+					lane = GD.RandRange(0, roadLanes - 1);
+				}
+				while (usedLanes.Contains(lane));
+
+				usedLanes.Add(lane);
+
+				float laneX = getLaneCenter(lane);
+
+				obstacles.Add(new CarObstacle
+				{
+					Texture = tex,
+
+					World = new Vector3(
+						laneX,
+						0,
+						i * spacing
+					),
+
+					Speed = 700 + GD.Randf() * 600,
+					CurrentLane = lane,
+					TargetLane = lane
+				});
+			}
+		}
+	}
+
+	public void updateObstacles(float delta)
+	{
+		foreach (var car in obstacles)
+		{
+			float dz = car.World.Z - cameraZ;
+
+			if (dz < 0)
+				dz += roadLength;
+
+			if (dz > visibleDistance)
+				continue;
+
+			tryChangeLane(car);
+
+			updateLaneChanging(car, delta);
+
+			car.World.Z += car.Speed * delta;
+
+			if (car.World.Z >= roadLength)
+				car.World.Z -= roadLength;
+		}
+	}
+
+	public void renderObstacles()
+	{
+		Vector2 screen = GetViewport().GetVisibleRect().Size;
+		
+		// Сначала вычисляем расстояние до камеры для всех машин
+		var carsWithDistance = new List<(CarObstacle car, float dz)>();
+		
+		foreach (var car in obstacles)
+		{
+			float dz = car.World.Z - cameraZ;
+			if (dz < 0)
+				dz += roadLength;
+			
+			if (dz <= 1)
+				continue;
+				
+			carsWithDistance.Add((car, dz));
+		}
+		
+		// Сортируем от дальних к ближним (по убыванию dz)
+		carsWithDistance.Sort((a, b) => b.dz.CompareTo(a.dz));
+		
+		// Рисуем в отсортированном порядке
+		foreach (var (car, dz) in carsWithDistance)
+		{
+			if (dz > visibleDistance)
+				continue;
+
+			float scale = distToPlane / dz;
+			
+			float screenX = (1 + scale * (car.World.X - cameraX)) * screen.X / 2;
+			float screenY = (1 - scale * (-cameraY)) * screen.Y / 2;
+			
+			float spriteWidth = car.Texture.GetWidth() * scale * screen.X / 2;
+			float spriteHeight = car.Texture.GetHeight() * scale * screen.X / 2;
+			
+			Rect2 rect = new Rect2(
+				screenX - spriteWidth / 2,
+				screenY - spriteHeight,
+				spriteWidth,
+				spriteHeight
+			);
+			
+			DrawTextureRect(car.Texture, rect, false);
+		}
+	}
+
+	public float getLaneCenter(int lane)
+	{
+		float laneWidth = (roadWidth * 2f) / roadLanes;
+
+		float leftEdge = -roadWidth;
+
+		return leftEdge + laneWidth * lane + laneWidth / 2f;
+	}
+
+	public void updateLaneChanging(CarObstacle car, float delta)
+	{
+		if (!car.IsChangingLane)
+			return;
+
+		car.LaneChangeProgress += delta * 2f;
+
+		float fromX = getLaneCenter(car.CurrentLane);
+		float toX = getLaneCenter(car.TargetLane);
+
+		car.World.X = Mathf.Lerp(
+			fromX,
+			toX,
+			car.LaneChangeProgress
+		);
+
+		if (car.LaneChangeProgress >= 1f)
+		{
+			car.CurrentLane = car.TargetLane;
+
+			car.World.X = getLaneCenter(car.CurrentLane);
+
+			car.IsChangingLane = false;
+		}
+	}
+	public void tryChangeLane(CarObstacle car)
+	{
+		if (car.IsChangingLane)
+			return;
+
+		foreach (var other in obstacles)
+		{
+			if (other == car)
+				continue;
+
+			bool sameLane =
+				other.CurrentLane == car.CurrentLane;
+
+			float dz = other.World.Z - car.World.Z;
+
+			if (dz < 0)
+				dz += roadLength;
+
+			bool closeAhead = dz < 800;
+
+			bool slower =
+				other.Speed < car.Speed;
+
+			if (sameLane && closeAhead && slower)
+			{
+				int leftLane = car.CurrentLane - 1;
+				int rightLane = car.CurrentLane + 1;
+
+				if (isLaneFree(car, leftLane))
+				{
+					startLaneChange(car, leftLane);
+					return;
+				}
+
+				if (isLaneFree(car, rightLane))
+				{
+					startLaneChange(car, rightLane);
+					return;
+				}
+			}
+		}
+	}
+	public void startLaneChange(CarObstacle car, int newLane)
+	{
+		car.TargetLane = newLane;
+
+		car.IsChangingLane = true;
+
+		car.LaneChangeProgress = 0f;
+	}
+	public bool isLaneFree(CarObstacle car, int lane)
+	{
+		if (lane < 0 || lane >= roadLanes)
+			return false;
+
+		foreach (var other in obstacles)
+		{
+			if (other == car)
+				continue;
+
+			if (other.CurrentLane != lane)
+				continue;
+
+			float dz = Mathf.Abs(
+				other.World.Z - car.World.Z
+			);
+
+			if (dz > roadLength / 2)
+				dz = roadLength - dz;
+
+			if (dz < 1200)
+				return false;
+		}
+
+		return true;
 	}
 }
