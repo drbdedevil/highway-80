@@ -95,6 +95,7 @@ public partial class MainScene : Node2D
 		resultScene = GetNode<Result>("Result");
 	}
 
+	private bool shouldFinished = false;
 	public override void _Process(double delta)
 	{
 		if (!isPlaying)
@@ -113,7 +114,7 @@ public partial class MainScene : Node2D
 		cameraX = currentRoadX + player.worldPosition.X * roadWidth;
 
 		cameraZ = player.worldPosition.Z - distToPlayer;
-		if (cameraZ < 0)
+		if (cameraZ < 0 && shouldFinished)
 		{
 			float result = panelInterface.cLock._currentTime;
 			GD.Print($"Finish with={result}");
@@ -138,6 +139,11 @@ public partial class MainScene : Node2D
 		UpdateBackgroundPosition();
 
 		QueueRedraw();
+
+		if (cameraZ > 0)
+		{
+			shouldFinished = true;
+		}
 	}
 
 	public override void _Input(InputEvent @event)

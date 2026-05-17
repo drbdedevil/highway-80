@@ -113,7 +113,7 @@ public partial class MainMenuScene : Control
 
 	private void OnStartButtonPressed()
 	{
-		PlayClickSound(() => GetTree().ChangeSceneToFile("res://Scenes/TestScene.tscn"));	
+		PlayClickSound(() => GetTree().ChangeSceneToFile("res://Scenes/MainScene.tscn"));	
 	}
 
 }
