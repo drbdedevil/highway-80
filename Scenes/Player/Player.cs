@@ -25,6 +25,7 @@ public partial class Player : Node2D
 	[Export]
 	public float collisionTimer = 0f;
 
+	public float relativePosition = 0f;
 	public Godot.Vector3 worldPosition = new Godot.Vector3();
 
 	public float playerWidth = 0;
@@ -43,10 +44,10 @@ public partial class Player : Node2D
 	public override void _Process(double delta)
 	{
 		float steer = Input.GetActionStrength("steer_right") - Input.GetActionStrength("steer_left");
-		float steerSpeed = 1.2f; // скорость поворота
+		float steerSpeed = 1.7f; // скорость поворота
 		worldPosition.X += steer * steerSpeed * (float)delta;
 
-		worldPosition.X = Mathf.Clamp(worldPosition.X, -1.5f, 1.5f);
+		worldPosition.X = Mathf.Clamp(worldPosition.X, -5f, 5f);
 
 		texturePlayer.Rotation = -steer * 0.3f; 
 	}
@@ -82,12 +83,17 @@ public partial class Player : Node2D
 			targetSpeed = Mathf.Min(targetSpeed, maxSpeed * collisionSlowdown);
 
 		// offroad penalty
-		float halfRoad = mainScene.roadWidth / 2f;
-		bool offroad = Mathf.Abs(worldPosition.X) > 1f;
+		float roadCenter = mainScene.getRoadCenterX(worldPosition.Z);
+		float leftBorder = roadCenter - mainScene.roadWidth;
+		float rightBorder = roadCenter + mainScene.roadWidth;
+
+		bool offroad = mainScene.cameraX < leftBorder || mainScene.cameraX > rightBorder;
+
+		// GD.Print($"cameraX={mainScene.cameraX}, roadCenter={roadCenter}, leftBorder={roadCenter - mainScene.roadWidth}, rightBorder={roadCenter + mainScene.roadWidth}");
 
 		if (offroad)
 		{
-			GD.Print("OFFROAD");
+			// GD.Print("OFFROAD");
 			targetSpeed = Mathf.Min(targetSpeed, maxSpeed * offroadSlowdown);
 		}
 

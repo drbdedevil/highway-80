@@ -43,6 +43,8 @@ public partial class MainScene : Node2D
 	public int roadLanes = 5;
 	public float perspective = 500f;
 
+	public float time => (float)Engine.GetProcessFrames() / 60f;
+
 	public override void _Ready()
 	{
 		// camera
@@ -70,7 +72,9 @@ public partial class MainScene : Node2D
 
 		// camera
 		// cameraZ += speed * (float)delta;
+		float roadCenter = getRoadCenterX(player.worldPosition.Z);
 		cameraX = player.worldPosition.X * roadWidth;
+
 		cameraZ = player.worldPosition.Z - distToPlayer;
 		if (cameraZ < 0)
 			cameraZ += roadLength;
@@ -124,6 +128,10 @@ public partial class MainScene : Node2D
 			var currSegment = segments[currIndex];
 
 			var offsetZ = (currIndex < baseIndex) ? roadLength : 0;
+			
+			float z = currSegment.Point.World.Z;
+			float curve = getRoadCurve(z, time);
+			currSegment.Point.World.X = curve;
 
 			project3D(currSegment.Point, offsetZ);
 
@@ -133,16 +141,29 @@ public partial class MainScene : Node2D
 			{
 				var prevIndex = (currIndex > 0) ? currIndex - 1 : totalSegments - 1;
 				var prevSegment = segments[prevIndex];
+				
+				// Также меняем World.X для предыдущего сегмента
+				float prevZ = prevSegment.Point.World.Z;
+				float prevCurve = getRoadCurve(prevZ, time);
+				prevSegment.Point.World.X = prevCurve;
+				
+				// Повторно проектируем предыдущий сегмент с новой кривизной
+				float prevOffsetZ = (prevIndex < baseIndex) ? roadLength : 0;
+				project3D(prevSegment.Point, prevOffsetZ);
 
 				var p1 = prevSegment.Point.Screen;
 				var p2 = currSegment.Point.Screen;
 
 				drawSegment(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, currSegment.Color);
-				drawEdges(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Godot.Colors.DarkGoldenrod);
+				// drawEdges(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Colors.DarkGoldenrod);
 
 				if (currIndex % 5 == 0)
 				{
-					drawDashedLineMarking(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Godot.Colors.White);
+					drawDashedLineMarking(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z, Colors.White);
+				}
+				if (currIndex % 3 == 0)
+				{
+					drawRoadBoundaries(p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z);
 				}
 
 				clipBottomLine = currBottomLine;
@@ -219,6 +240,25 @@ public partial class MainScene : Node2D
 				new Vector2(lane_x2 - line_w2, y2)
 			}, Color);
 		}
+	}
+
+	private void drawRoadBoundaries(float x1, float y1, float w1, float x2, float y2, float w2)
+	{
+		// Левая граница (красная)
+		DrawLine(new Vector2(x1 - w1, y1), new Vector2(x2 - w2, y2), Colors.Green, 4f);
+		
+		// Правая граница (красная)
+		DrawLine(new Vector2(x1 + w1, y1), new Vector2(x2 + w2, y2), Colors.Green, 4f);
+		
+		// Внутренние предупредительные зоны (желтые) - за 80% от ширины дороги
+		float dangerZone1 = w1 * 0.95f;
+		float dangerZone2 = w2 * 0.95f;
+		
+		// Левая опасная зона
+		DrawLine(new Vector2(x1 - dangerZone1, y1), new Vector2(x2 - dangerZone2, y2), Colors.Yellow, 2f);
+		
+		// Правая опасная зона
+		DrawLine(new Vector2(x1 + dangerZone1, y1), new Vector2(x2 + dangerZone2, y2), Colors.Yellow, 2f);
 	}
 
 	public void createRoad()
@@ -334,7 +374,6 @@ public partial class MainScene : Node2D
 
 		Vector2 screen = GetViewport().GetVisibleRect().Size;
 		
-		// Сначала вычисляем расстояние до камеры для всех машин
 		var carsWithDistance = new List<(CarObstacle car, float dz)>();
 		
 		foreach (var car in obstacles)
@@ -349,10 +388,8 @@ public partial class MainScene : Node2D
 			carsWithDistance.Add((car, dz));
 		}
 		
-		// Сортируем от дальних к ближним (по убыванию dz)
 		carsWithDistance.Sort((a, b) => b.dz.CompareTo(a.dz));
 		
-		// Рисуем в отсортированном порядке
 		foreach (var (car, dz) in carsWithDistance)
 		{
 			if (dz > visibleDistance)
@@ -360,7 +397,9 @@ public partial class MainScene : Node2D
 
 			float scale = distToPlane / dz;
 			
-			float screenX = (1 + scale * (car.World.X - cameraX)) * screen.X / 2;
+			// Добавляем кривизну для машин как в шейдере
+			float curve = getRoadCurve(car.World.Z, time);
+			float screenX = (1 + scale * ((car.World.X + curve) - cameraX)) * screen.X / 2;
 			float screenY = (1 - scale * (-cameraY)) * screen.Y / 2;
 			
 			float spriteWidth = car.Texture.GetWidth() * scale * screen.X / 2;
@@ -570,5 +609,45 @@ public partial class MainScene : Node2D
 		);
 
 		DrawRect(playerRect, Colors.Red, false, 2f);
+	}
+
+	public float getRoadCurve(float z, float t)
+	{
+		// Дорога изгибается в зависимости от позиции
+		float amplitude = 2000f; // Большая амплитуда для теста
+		float frequency = 0.0001f;
+		
+		return amplitude * Mathf.Sin(z * frequency);
+	}
+	public Vector3 getRoadPositionAtZ(float z, float offsetX = 0)
+	{
+		float curve = getRoadCurve(z, time);
+		return new Vector3(curve + offsetX, 0, z);
+	}
+
+	public float getRoadLeftEdge(float z)
+	{
+		float curve = getRoadCurve(z, time);
+		return curve - roadWidth;
+	}
+
+	public float getRoadRightEdge(float z)
+	{
+		float curve = getRoadCurve(z, time);
+		return curve + roadWidth;
+	}
+
+	public bool isPlayerOnRoad(float playerX, float playerZ)
+	{
+		float curve = getRoadCurve(playerZ, time);
+		float leftEdge = curve - roadWidth;
+		float rightEdge = curve + roadWidth;
+		
+		return playerX >= leftEdge && playerX <= rightEdge;
+	}
+
+	public float getRoadCenterX(float z)
+	{
+		return getRoadCurve(z, time);
 	}
 }
