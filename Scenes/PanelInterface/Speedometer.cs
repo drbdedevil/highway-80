@@ -5,9 +5,9 @@ public partial class Speedometer : TextureRect
 {
 
 	[Export] public float MinSpeed = 0.0f;
-	[Export] public float MaxSpeed = 200.0f;
-	[Export] public float MinAngle = -45.0f;
-	[Export] public float MaxAngle = 45.0f;
+	[Export] public float MaxSpeed = 12000.0f;
+	[Export] public float MinAngle = -90.0f;
+	[Export] public float MaxAngle = 90.0f;
 
 	public override void _Ready()
 	{

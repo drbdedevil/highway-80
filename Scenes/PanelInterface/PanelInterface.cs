@@ -3,8 +3,13 @@ using System;
 
 public partial class PanelInterface : TextureRect
 {
+	public CLock cLock = null;
+	public Speedometer speedometer = null;
 	public override void _Ready()
 	{
+		cLock = GetNode<CLock>("../ClockArrow");
+		speedometer = GetNode<Speedometer>("../SpeedometerArrow");
+
 		ScaleDashboard();
 	}
 

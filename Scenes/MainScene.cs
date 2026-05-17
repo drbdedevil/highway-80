@@ -56,6 +56,8 @@ public partial class MainScene : Node2D
 	[Export]
 	public PackedScene cityScene;
 
+	public PanelInterface panelInterface;
+
 	public override void _Ready()
 	{
 		// camera
@@ -86,12 +88,16 @@ public partial class MainScene : Node2D
 
 			UpdateBackgroundPosition();
 		}
+
+		panelInterface = GetNode<PanelInterface>("PanelInterface/Panel");
 	}
 
 	public override void _Process(double delta)
 	{
 		// player
 		player.updatePosition(delta);
+		panelInterface.speedometer.SetSpeed(player.speed);
+		// GD.Print(player.speed);
 
 		// camera
 		float currentRoadX = getRoadCenterX(player.worldPosition.Z);
@@ -103,7 +109,9 @@ public partial class MainScene : Node2D
 		cameraZ = player.worldPosition.Z - distToPlayer;
 		if (cameraZ < 0)
 		{
-			GD.Print("Finish");
+			float result = panelInterface.cLock._currentTime;
+			GD.Print($"Finish with={result}");
+			
 			cameraZ += roadLength;
 		}
 
