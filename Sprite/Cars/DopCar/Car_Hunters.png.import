@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cikc2intw6lbb"
-path="res://.godot/imported/Car_GGAskance2.png-e6c772c2597fef675d453499f427d7b9.ctex"
+uid="uid://bm8hey4g2p46v"
+path="res://.godot/imported/Car_Hunters.png-aad82318ca63e65c923110350857e9e2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprite/Cars/GGCar/Car_GGAskance2.png"
-dest_files=["res://.godot/imported/Car_GGAskance2.png-e6c772c2597fef675d453499f427d7b9.ctex"]
+source_file="res://Sprite/Cars/DopCar/Car_Hunters.png"
+dest_files=["res://.godot/imported/Car_Hunters.png-aad82318ca63e65c923110350857e9e2.ctex"]
 
 [params]
 

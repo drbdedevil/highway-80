@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cikc2intw6lbb"
-path="res://.godot/imported/Car_GGAskance2.png-e6c772c2597fef675d453499f427d7b9.ctex"
+uid="uid://ds7nfjswo3p32"
+path="res://.godot/imported/Car_DeLorean.png-d8bdfa75480228e01471eecfe8cdaf11.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprite/Cars/GGCar/Car_GGAskance2.png"
-dest_files=["res://.godot/imported/Car_GGAskance2.png-e6c772c2597fef675d453499f427d7b9.ctex"]
+source_file="res://Sprite/Cars/DopCar/Car_DeLorean.png"
+dest_files=["res://.godot/imported/Car_DeLorean.png-d8bdfa75480228e01471eecfe8cdaf11.ctex"]
 
 [params]
 
