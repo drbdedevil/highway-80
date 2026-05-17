@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://bnlngpp51jikf"]
+
+[ext_resource type="Texture2D" uid="uid://dkk5fusi6474x" path="res://Sprite/Back/Back_Panel.png" id="1_2y1c3"]
+[ext_resource type="Script" uid="uid://dwrb18msbsmla" path="res://Scenes/PanelInterface/PanelInterface.cs" id="2_4opyd"]
+[ext_resource type="Texture2D" uid="uid://bbgodcu2n1gjd" path="res://Sprite/PanelInterface/Panel_Rudder.png" id="3_c4b8d"]
+[ext_resource type="Texture2D" uid="uid://w1t5qk4hwudm" path="res://Sprite/PanelInterface/Panel_Speedometer.png" id="3_dnrki"]
+[ext_resource type="Texture2D" uid="uid://dmj2hj5hhge4g" path="res://Sprite/PanelInterface/Panel_Speedometer_arrow.png" id="4_ativ0"]
+[ext_resource type="Script" uid="uid://btv2xgle6d6q5" path="res://Scenes/PanelInterface/SteeringWheel.cs" id="4_ms7qq"]
+[ext_resource type="Script" uid="uid://8sy3cul5hc0" path="res://Scenes/PanelInterface/Speedometer.cs" id="5_b5vlu"]
+[ext_resource type="Texture2D" uid="uid://lkc32hov1myq" path="res://Sprite/PanelInterface/Panel_KPP.png" id="8_veaum"]
+[ext_resource type="Script" uid="uid://b18irqk48ol7g" path="res://Scenes/PanelInterface/GearStick.cs" id="9_y2l0d"]
+[ext_resource type="Texture2D" uid="uid://dptfxolmtpviq" path="res://Sprite/PanelInterface/Panel_Watch.png" id="10_y2l0d"]
+[ext_resource type="Texture2D" uid="uid://c8bk57w5xem6u" path="res://Sprite/PanelInterface/Panel_Watch_arrow.png" id="11_ev077"]
+[ext_resource type="Script" uid="uid://b3u8va0wvbr7a" path="res://Scenes/PanelInterface/CLock.cs" id="12_6ubp0"]
+
+[node name="PanelInterface" type="Control" unique_id=1280227375]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="TextureRect" parent="." unique_id=1346564211]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1084.0
+texture = ExtResource("1_2y1c3")
+expand_mode = 1
+stretch_mode = 4
+script = ExtResource("2_4opyd")
+
+[node name="Speedometer" type="TextureRect" parent="." unique_id=1614887917]
+layout_mode = 0
+offset_left = -60.0
+offset_top = 217.0
+offset_right = 1193.0
+offset_bottom = 966.0
+texture = ExtResource("3_dnrki")
+expand_mode = 1
+
+[node name="SpeedometerArrow" type="TextureRect" parent="." unique_id=731880267]
+layout_mode = 0
+offset_left = -60.0
+offset_top = 217.0
+offset_right = 1193.0
+offset_bottom = 966.0
+rotation = -1.5707964
+pivot_offset = Vector2(747.5, 673)
+texture = ExtResource("4_ativ0")
+expand_mode = 1
+script = ExtResource("5_b5vlu")
+
+[node name="Wheel" type="TextureRect" parent="." unique_id=1472954579]
+layout_mode = 0
+offset_left = 266.0
+offset_top = 648.0
+offset_right = 1068.0
+offset_bottom = 1264.0
+pivot_offset = Vector2(423, 308)
+texture = ExtResource("3_c4b8d")
+script = ExtResource("4_ms7qq")
+
+[node name="Gear" type="TextureRect" parent="." unique_id=1462787809]
+layout_mode = 0
+offset_left = 25.0
+offset_top = -126.0
+offset_right = 1945.0
+offset_bottom = 954.0
+texture = ExtResource("8_veaum")
+script = ExtResource("9_y2l0d")
+
+[node name="Clock" type="TextureRect" parent="." unique_id=1789322333]
+layout_mode = 0
+offset_top = -44.0
+offset_right = 1920.0
+offset_bottom = 1036.0
+texture = ExtResource("10_y2l0d")
+
+[node name="ClockArrow" type="TextureRect" parent="." unique_id=1985114652]
+layout_mode = 0
+offset_left = -7.0
+offset_top = -35.0
+offset_right = 1913.0
+offset_bottom = 1045.0
+pivot_offset = Vector2(175, 920)
+texture = ExtResource("11_ev077")
+script = ExtResource("12_6ubp0")
