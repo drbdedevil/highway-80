@@ -345,7 +345,7 @@ public partial class MainScene : Node2D
 			int randIndexTexture = GD.RandRange(0, obstacleTextures.Count - 1);;
 			var randTexture = obstacleTextures[randIndexTexture];
 
-			int carsInRow = GD.RandRange(1, 3);
+			int carsInRow = GD.RandRange(0, 3);
 
 			List<int> usedLanes = new();
 

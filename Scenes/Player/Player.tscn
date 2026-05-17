@@ -15,12 +15,10 @@ Straight2 = ExtResource("3_fk5o5")
 Straight3 = ExtResource("4_825xp")
 Turn1 = ExtResource("5_ji083")
 Turn2 = ExtResource("6_0kmp4")
-playerHeightOffset = 300.0
+playerHeightOffset = 200.0
 playerSpeedModifier = 0.3
-playerScaleK = 0.07
+playerScaleK = 0.03
 acceleration = 2000.0
-offroadSlowdown = 0.01
-offroadAccelerationPenalty = 0.01
 
 [node name="Texture" type="TextureRect" parent="." unique_id=1535683970]
 offset_right = 128.0

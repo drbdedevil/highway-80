@@ -134,11 +134,11 @@ public partial class Player : Node2D
 
 		bool offroad = mainScene.cameraX < leftBorder || mainScene.cameraX > rightBorder;
 
-		// GD.Print($"cameraX={mainScene.cameraX}, roadCenter={roadCenter}, leftBorder={roadCenter - mainScene.roadWidth}, rightBorder={roadCenter + mainScene.roadWidth}");
+		GD.Print($"cameraX={mainScene.cameraX}, roadCenter={roadCenter}, leftBorder={roadCenter - mainScene.roadWidth}, rightBorder={roadCenter + mainScene.roadWidth}");
 
 		if (offroad)
 		{
-			// GD.Print("OFFROAD");
+			GD.Print("OFFROAD");
 			targetSpeed = Mathf.Min(targetSpeed, maxSpeed * offroadSlowdown);
 		}
 
@@ -170,7 +170,7 @@ public partial class Player : Node2D
 		float originalHeight = texturePlayer.Texture.GetHeight();
 
 		// Пересчитываем офсет при каждом обновлении (адаптивно к экрану)
-		playerHeightOffset = screen.Y / 4;  // 1/4 от высоты экрана
+		playerHeightOffset = screen.Y / 3;  // 1/3 от высоты экрана
 		
 		float targetWidth = screen.X * playerScaleK;
 		float targetHeight = targetWidth * originalHeight / originalWidth;
