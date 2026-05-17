@@ -31,6 +31,10 @@ public partial class MainScene : Node2D
 	public float cameraX = 0;
 	public float cameraY = 600;
 	public float cameraZ = 0;
+	public float cameraCurveLookAhead = 5000f;
+	public float cameraTurnStrength = 0.25f;
+	public float cameraCurveX = 0f;
+	public float cameraYaw = 0f;
 	public float distToPlayer = 500;
 	public float distToPlane = 0;
 
@@ -71,9 +75,11 @@ public partial class MainScene : Node2D
 		player.updatePosition(delta);
 
 		// camera
-		// cameraZ += speed * (float)delta;
-		float roadCenter = getRoadCenterX(player.worldPosition.Z);
-		cameraX = player.worldPosition.X * roadWidth;
+		float currentRoadX = getRoadCenterX(player.worldPosition.Z);
+		float futureRoadX = getRoadCenterX(player.worldPosition.Z + cameraCurveLookAhead);
+		float roadDelta = futureRoadX - currentRoadX;
+		cameraYaw = roadDelta * 0.00015f;
+		cameraX = currentRoadX + player.worldPosition.X * roadWidth;
 
 		cameraZ = player.worldPosition.Z - distToPlayer;
 		if (cameraZ < 0)
@@ -129,9 +135,9 @@ public partial class MainScene : Node2D
 
 			var offsetZ = (currIndex < baseIndex) ? roadLength : 0;
 			
-			float z = currSegment.Point.World.Z;
-			float curve = getRoadCurve(z, time);
-			currSegment.Point.World.X = curve;
+			// float z = currSegment.Point.World.Z;
+			// float curve = getRoadCurve(z, time);
+			// currSegment.Point.World.X = curve;
 
 			project3D(currSegment.Point, offsetZ);
 
@@ -142,10 +148,9 @@ public partial class MainScene : Node2D
 				var prevIndex = (currIndex > 0) ? currIndex - 1 : totalSegments - 1;
 				var prevSegment = segments[prevIndex];
 				
-				// Также меняем World.X для предыдущего сегмента
-				float prevZ = prevSegment.Point.World.Z;
-				float prevCurve = getRoadCurve(prevZ, time);
-				prevSegment.Point.World.X = prevCurve;
+				// float prevZ = prevSegment.Point.World.Z;
+				// float prevCurve = getRoadCurve(prevZ, time);
+				// prevSegment.Point.World.X = prevCurve;
 				
 				// Повторно проектируем предыдущий сегмент с новой кривизной
 				float prevOffsetZ = (prevIndex < baseIndex) ? roadLength : 0;
@@ -183,9 +188,20 @@ public partial class MainScene : Node2D
 	{
 		Vector2 screen = GetViewport().GetVisibleRect().Size;
 
-		var transX = Point.World.X - cameraX;
+		float curve = getRoadCurve(Point.World.Z, time);
+
+		var transX = (Point.World.X + curve) - cameraX;
 		var transY = Point.World.Y - cameraY;
 		var transZ = Point.World.Z - cameraZ - offsetZ;
+
+		float rotatedX = transX * Mathf.Cos(cameraYaw) - transZ * Mathf.Sin(cameraYaw);
+		float rotatedZ = transX * Mathf.Sin(cameraYaw) + transZ * Mathf.Cos(cameraYaw);
+
+		transX = rotatedX;
+		transZ = rotatedZ;
+
+		if (transZ <= 0.1f)
+			transZ = 0.1f;
 
 		Point.Scale = distToPlane / transZ;
 
@@ -395,12 +411,27 @@ public partial class MainScene : Node2D
 			if (dz > visibleDistance)
 				continue;
 
-			float scale = distToPlane / dz;
-			
-			// Добавляем кривизну для машин как в шейдере
 			float curve = getRoadCurve(car.World.Z, time);
-			float screenX = (1 + scale * ((car.World.X + curve) - cameraX)) * screen.X / 2;
-			float screenY = (1 - scale * (-cameraY)) * screen.Y / 2;
+
+			float transX = (car.World.X + curve) - cameraX;
+			float transY = -cameraY;
+			float transZ = dz;
+
+			float rotatedX = transX * Mathf.Cos(cameraYaw) - transZ * Mathf.Sin(cameraYaw);
+
+			float rotatedZ = transX * Mathf.Sin(cameraYaw) + transZ * Mathf.Cos(cameraYaw);
+
+			transX = rotatedX;
+			transZ = rotatedZ;
+
+			if (transZ <= 0.1f)
+				continue;
+
+			float scale = distToPlane / transZ;
+
+			float screenX = (1 + scale * transX) * screen.X / 2;
+
+			float screenY = (1 - scale * transY) * screen.Y / 2;
 			
 			float spriteWidth = car.Texture.GetWidth() * scale * screen.X / 2;
 			float spriteHeight = car.Texture.GetHeight() * scale * screen.X / 2;
@@ -613,9 +644,8 @@ public partial class MainScene : Node2D
 
 	public float getRoadCurve(float z, float t)
 	{
-		// Дорога изгибается в зависимости от позиции
-		float amplitude = 2000f; // Большая амплитуда для теста
-		float frequency = 0.0001f;
+		float amplitude = 2000f;
+		float frequency = 0.00009f;
 		
 		return amplitude * Mathf.Sin(z * frequency);
 	}
