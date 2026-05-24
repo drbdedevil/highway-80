@@ -3,3 +3,5 @@
 Управление: A - поворот влево, D - поворот вправо
 
 Собранный проект в папке Build
+
+<img width="1920" height="1016" alt="image" src="https://github.com/user-attachments/assets/1747f550-43df-4a07-bbf4-f8fd819c7f1c" />
